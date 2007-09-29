@@ -9,11 +9,11 @@
 	<cfloop query="fileQuery">
 		<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
 			
-			<cfset scoperFileName="#arguments.startingDirectory#\#name#">
+			<cfset scoperFileName="#arguments.startingDirectory#/#name#">
 			<cfset variables.totalFiles = variables.totalFiles + 1 />
 			<cfinclude template="varscoperDisplay.cfm">
 		<cfelseif type IS "Dir" and arguments.recursive >
-			<cfset processDirectory(startingDirectory:"#directory#\#name#",recursive:true) />
+			<cfset processDirectory(startingDirectory:"#directory#/#name#",recursive:true) />
 		</cfif>
 		
 	</cfloop>
