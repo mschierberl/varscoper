@@ -11,7 +11,7 @@
 			
 			<cfset scoperFileName="#arguments.startingDirectory#/#name#">
 			<cfset variables.totalFiles = variables.totalFiles + 1 />
-			<cfinclude template="varscoperDisplay.cfm">
+			<cfinclude template="varScoperDisplay.cfm">
 		<cfelseif type IS "Dir" and arguments.recursive >
 			<cfset processDirectory(startingDirectory:"#directory#/#name#",recursive:true) />
 		</cfif>
@@ -76,7 +76,7 @@ body, input{
 
 <cfsetting showdebugoutput="false">
 
-<form action="varscoper.cfm" method="get" name="scoperForm" id="scoperForm" <!--- onsubmit="document.scoperForm.submitButton.disabled=true;" --->>
+<form action="varScoper.cfm" method="get" name="scoperForm" id="scoperForm" <!--- onsubmit="document.scoperForm.submitButton.disabled=true;" --->>
 	absolute path:
 	<cfoutput>
 		<input type="text" name="filePath" id="filePath" size="75" value="#htmlEditFormat(scoperFileName)#" />
@@ -130,7 +130,7 @@ body, input{
 		</cfif>
 		<cfset variables.totalMethods = 0 />
 		<cfset directoryStart = getTickCount() />
-		<cfinclude template="varscoperDisplay.cfm">
+		<cfinclude template="varScoperDisplay.cfm">
 		<cfset directoryEnd = getTickCount() />
 		<cfoutput><br><br><span class="summary">Processed 1 file and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
 	
