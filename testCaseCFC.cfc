@@ -6,6 +6,8 @@
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
+	
+	
 	<cffunction name="simpleVarTest">
 		<cfset var correctSimpleVar = "" />
 		<cfset   var correctSimpleVar2 = "" />
@@ -132,6 +134,71 @@
 				<cfrethrow />
 			</cfcatch>
 		</cftry>
+	</cffunction>
+	
+	<cffunction name="cfscript_vars" access="public" returntype="void">
+		<cfscript>
+			var correctSimpleVar ="bar";
+			VAR correctSimpleVar2 = "";
+			vAr correctSimpleVar3 ="bar";
+			var correctSimpleVar4 = "";
+			var correctSimpleVar5 = ""; //comments after var
+			var correctStruct = structNew();
+			var correctLoop = "";
+			var arr = "";
+			var startRow = ""; 
+			// var withinComments = "";
+			/* var withincomments2 = ""; */
+		</cfscript>
+		
+		<cfscript>
+			correctSimpleVar ="bar";
+			correctSimpleVar2 = "";
+			correctSimpleVar3 ="bar";
+			correctSimpleVar4 = '';
+			correctSimpleVar4 
+				= 
+				"" 
+				;
+			correctStruct.test = ""
+			;
+			
+			for(correctLoop=1;correctLoop LTE 10; correctLoop=correctLoop+1) correctSimpleVar = correctLoop;
+
+ 			for (unscopedLoop=1;unscopedLoop LTE 10; unscopedLoop=unscopedLoop+1) unscopedSimpleVar = unscopedLoop;
+			
+			unscopedSimpleVar ="bar";
+			unscopedSimpleVar2 = "";
+			unscopedSimpleVar3 ="bar";
+			unscopedSimpleVar4 
+				= 
+				"" 
+				;
+			unscopedStruct.test = ""
+			;
+			
+			arr[1] = foo;
+			
+			if (1 EQ 1)
+				startRow = 1;
+			else 
+				startRow = 2;
+		</cfscript>
+		
+
+	</cffunction>
+	
+	<cffunction name="cfscript_vars_2">
+	    <cfscript>
+            var currentMode=''; // loop index
+            var currentKeyword=''; // loop index
+            var tmpQuery=''; // temp query holder
+            var ReturnStruct=structnew(); 
+            ReturnStruct.Query='';
+            ReturnStruct.TotRows='';
+            currentMode = '';
+            
+        </cfscript>
 	</cffunction>
 
 </cfcomponent>
