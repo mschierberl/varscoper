@@ -17,7 +17,14 @@
 			<cfset showLineNumbers = TRUE >
 		</cfif>
 		
-		<cfset varscoper = createObject("component","varscoper").init(fileParseText:fileParseText,showDuplicates:showDuplicates,showLineNumbers:showLineNumbers) />
+		<cfif isDefined("URL.parseCfscript") and URL.parseCfscript>
+			<cfset parseCfscript = TRUE >
+		<cfelse>
+			<cfset parseCfscript = FALSE >
+		</cfif>
+		
+		
+		<cfset varscoper = createObject("component","varscoper").init(fileParseText:fileParseText,showDuplicates:showDuplicates,showLineNumbers:showLineNumbers,parseCfscript:parseCfscript) />
 		<!--- <cftimer label="Scope Checking Execution" type="comment"> --->
 			<cfset varscoper.runVarscoper() />
 		<!--- </cftimer> --->
