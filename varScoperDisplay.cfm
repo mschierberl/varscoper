@@ -24,7 +24,7 @@
 		</cfif>
 		
 		
-		<cfset varscoper = createObject("component","varscoper").init(fileParseText:fileParseText,showDuplicates:showDuplicates,showLineNumbers:showLineNumbers,parseCfscript:parseCfscript) />
+		<cfset varscoper = createObject("component","varScoper").init(fileParseText:fileParseText,showDuplicates:showDuplicates,showLineNumbers:showLineNumbers,parseCfscript:parseCfscript) />
 		<!--- <cftimer label="Scope Checking Execution" type="comment"> --->
 			<cfset varscoper.runVarscoper() />
 		<!--- </cftimer> --->
