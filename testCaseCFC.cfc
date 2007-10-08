@@ -149,6 +149,8 @@
 			var startRow = ""; 
 			// var withinComments = "";
 			/* var withincomments2 = ""; */
+			var stFile = "";
+			var sFileName = "";
 		</cfscript>
 		
 		<cfscript>
@@ -183,6 +185,13 @@
 				startRow = 1;
 			else 
 				startRow = 2;
+				
+			CheckMimeType(mimetype_ID=qFile.mimetype_ID);
+			
+			stFile["#variables.sRelatedField#"] = variables.related_ID;
+			
+			// replace special characters
+			sFileName = variables.oFileSystem.checkFileName(stUploadedFile.ClientFile);
 		</cfscript>
 		
 
