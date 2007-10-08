@@ -126,7 +126,12 @@ body, input{
 		<cfelse>
 			<cfset scoperFileName=expandPath(url.filePath)>
 		</cfif>
+		<cfset variables.totalMethods = 0 />
+		<cfset directoryStart = getTickCount() />
 		<cfinclude template="varscoperDisplay.cfm">
+		<cfset directoryEnd = getTickCount() />
+		<cfoutput><br><br><span class="summary">Processed 1 file and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
+	
 	<cfelseif directoryExists("#url.filePath#") OR directoryExists(expandPath(url.filePath))>
 		<cfif directoryExists(url.filePath)>
 			<cfset startingDirectory = url.filePath>
