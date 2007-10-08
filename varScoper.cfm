@@ -91,7 +91,9 @@ body, input{
 	<input type="checkbox" name="showDuplicates" value="true" <cfif isDefined("URL.showDuplicates") and URL.showDuplicates>checked</cfif>> show duplicates (useful if some setters are in comments) 
 	<!--- <input type="checkbox" name="hideLineNumbers" value="true" <cfif isDefined("URL.hideLineNumbers") and URL.hideLineNumbers>checked</cfif>> hide line numbers --->
 	<br>
-	<input type="checkbox" name="recursiveDirectory" value="true" <cfif isDefined("URL.recursiveDirectory") and URL.recursiveDirectory>checked</cfif>> include sub-folders
+	<input type="checkbox" name="recursiveDirectory" value="true" <cfif isDefined("URL.recursiveDirectory") and URL.recursiveDirectory>checked</cfif>> include sub-folders<br>
+	<input type="checkbox" name="parseCfscript" value="true" <cfif isDefined("URL.parseCfscript") and URL.parseCfscript>checked</cfif>> parse cfscript (experimental) note: this will NOT return correct line numbers
+
 </form>
 
 <cfif isdefined("url.filePath") and trim(url.filePath) IS NOT "">
