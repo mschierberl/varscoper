@@ -392,14 +392,37 @@
 				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"<\s?cfscript\b[^>]*>","")>
 				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"</\s?cfscript\s?>","")>
 				
-				<!--- strip out single line comments --->
-				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"//(.*?)#chr(13)#?#chr(10)#","")>
+				<!--- strip out single line comments 
+					($custom:hkl) use \n instead of chr(), added all --->
+				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"//(.*?)\n","","all")>
 				
 				<!--- strip out multi line comments --->
 				<!--- Note, this will not support the following syntax:  /* /* */  --->
-				<!--- Only supports code with an equal number of open and close comments --->
-				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"/\*(.*?)\*/","")>
-				
+				<!--- Only supports code with an equal number of open and close comments
+					($custom:hkl) added all --->
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"/\*(.*?)\*/","","all")>
+
+				<!--- strip out if statements ($custom change:hkl)
+					quick and dirty, used for cases like
+						if() x = y;
+				 --->
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"if[ ]*\((.*?)\)","","all")>
+
+				<!--- Strip out for loops at start of statement, this is needed after Harry's fixes: ms --->
+				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"for\s?\(","","all")>
+
+				<!--- strip out function calls ($custom:hkl)
+					quick and dirty, used for cases like
+						method(a=x, b=y);
+				 --->
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\((.*?)\)","","all")>
+                               
+				<!--- strip out bracket statements ($custom:hkl)
+					quick and dirty, used for cases like
+						stTest["mykey"] = value;
+				 --->
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\[(.*?)\]","","all")>
+
 				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:"[a-zA-Z0-9_\[\]\.\s]+\=(.*?);")>
 							
 				<!--- Loop over all potential set statements --->
@@ -410,7 +433,7 @@
 					
 						<!--- Strip out else statements if they are first.  Else is reserved word in cfscript and you could have a situation where you have if(variable) foo=1;else bar=1; --->
 						<cfset variableNameSetIsolate = ReReplaceNoCase(setStatementArray[setStatementIdx],"else+[\s]","")>
-					
+						
 						<!--- Check to see if this is properly scoped already, make sure to check dot and array notation --->
 						<cfset variableNameSetIsolate = left(variableNameSetIsolate,find("=",variableNameSetIsolate)-1) />
 						<cfset VariableNamesetIsolate = trim(ListFirst(ListFirst(VariableNamesetIsolate,'.'),'[')) />
