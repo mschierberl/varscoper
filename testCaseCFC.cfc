@@ -167,7 +167,11 @@
 			
 			for(correctLoop=1;correctLoop LTE 10; correctLoop=correctLoop+1) correctSimpleVar = correctLoop;
 
+			for ( correctLoop=1;correctLoop LTE 10; correctLoop=correctLoop+1) correctSimpleVar = correctLoop;for(correctLoop=1;correctLoop LTE 10; correctLoop=correctLoop+1) correctSimpleVar = correctLoop;
+
  			for (unscopedLoop=1;unscopedLoop LTE 10; unscopedLoop=unscopedLoop+1) unscopedSimpleVar = unscopedLoop;
+			
+			for (correctLoop = someFunction();correctLoop LTE 10; correctLoop = correctLoop+1) ;
 			
 			unscopedSimpleVar ="bar";
 			unscopedSimpleVar2 = "";
@@ -194,6 +198,7 @@
 			sFileName = variables.oFileSystem.checkFileName(stUploadedFile.ClientFile);
 		</cfscript>
 		
+		<cfscript>variables.Logger.logDebug("looking in NDS server #ndsServer# as #ndsUser# for cn=#arguments.username#");</cfscript>
 
 	</cffunction>
 	
