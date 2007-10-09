@@ -151,6 +151,7 @@
 			/* var withincomments2 = ""; */
 			var stFile = "";
 			var sFileName = "";
+			var rowData = "";
 		</cfscript>
 		
 		<cfscript>
@@ -196,6 +197,16 @@
 			
 			// replace special characters
 			sFileName = variables.oFileSystem.checkFileName(stUploadedFile.ClientFile);
+
+			rowdata[fieldElement.XmlAttributes["name"]] = fieldElement.XmlAttributes["value"];
+
+			"dynamic.st#I18n#" = structNew();
+			
+			return newStruct(ok="false", errorMessage="!", sValidationMsg="#getCaseString(attr)#",
+			field="#stResult.fieldname#", rules="#stRules#", result="#stResult#"); 
+
+
+
 		</cfscript>
 		
 		<cfscript>variables.Logger.logDebug("looking in NDS server #ndsServer# as #ndsUser# for cn=#arguments.username#");</cfscript>
