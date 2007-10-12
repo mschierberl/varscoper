@@ -1,4 +1,4 @@
-<!--- Problem Files --->
+<cfcontent reset="true" type="text/xml" file="" deletefile="true"><!--- Problem Files --->
 <!--- 
 
 
@@ -205,6 +205,8 @@
 			return newStruct(ok="false", errorMessage="!", sValidationMsg="#getCaseString(attr)#",
 			field="#stResult.fieldname#", rules="#stRules#", result="#stResult#"); 
 
+			variables.logger.writelog('Access Denied for
+			#sFacade.getUserBean().getEmailAddress()# @ #cgi.remote_addr# to event=#arguments.event.getValue("requestedEvent")#', "ERROR");
 
 
 		</cfscript>
