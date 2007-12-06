@@ -64,7 +64,29 @@
 	<cfset arrayAppend(variables.tagTypes,"cfform:name") />
 	<cfset arrayAppend(variables.tagTypes,"cfstoredproc:name")>
 	<cfset arrayAppend(variables.tagTypes,"cfprocparam:variable")>
-	
+	<cfset arrayAppend(variables.tagTypes,"cfhttp:result")>
+	<cfset arrayAppend(variables.tagTypes,"cfquery:result")>
+	<cfset arrayAppend(variables.tagTypes,"cfimage:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfmail:query")>
+	<cfset arrayAppend(variables.tagTypes,"cffeed:name")>
+	<cfset arrayAppend(variables.tagTypes,"cffeed:query")>
+	<cfset arrayAppend(variables.tagTypes,"cfftp:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfwddx:output")>
+	<cfset arrayAppend(variables.tagTypes,"cfobject:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfsearch:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfprocresult:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfpop:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfregistry:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfreport:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfdbinfo:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfdocument:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfexecute:variable")>
+	<cfset arrayAppend(variables.tagTypes,"cfNtAuthenticate:result")>
+	<cfset arrayAppend(variables.tagTypes,"cfcollection:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfpdf:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfxml:variable")>
+	<cfset arrayAppend(variables.tagTypes,"cfzip:name")>
+	<cfset arrayAppend(variables.tagTypes,"cfldap:name")>
 	
 	<cffunction name="init" access="public" output="false" returntype="varscoper" 
 		hint="I initialize an instance of the var scoper component which is used to find unscoped vars" >
