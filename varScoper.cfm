@@ -1,3 +1,20 @@
+<!--- 
+	varscoper.cfm
+	
+	
+	
+	Author: Mike Schierberl 
+			mike@schierberl.com
+	
+
+	Change log:
+		7/14/2006 - initial revision
+		11/1/2007 - support for ColdFusion MX - 8
+
+	Fixes:
+		-changed processDirectory() not to be dependant on the resultset that cfdirectory returns for ColdFusion 7 - 8
+ --->
+
 <cffunction name="processDirectory" hint="used to traverse a directory structure">
 	<cfargument name="startingDirectory" type="string" required="true">
 	<cfargument name="recursive" type="boolean" required="false" default="false">
@@ -7,17 +24,16 @@
 	
 	<cfdirectory directory="#arguments.startingDirectory#" name="fileQuery">
 	<cfloop query="fileQuery">
+		<cfset scoperFileName = "#arguments.startingDirectory#/#name#" />
+
 		<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
-			
-			<cfset scoperFileName="#arguments.startingDirectory#/#name#">
 			<cfset variables.totalFiles = variables.totalFiles + 1 />
 			<cfinclude template="varScoperDisplay.cfm">
 		<cfelseif type IS "Dir" and arguments.recursive >
-			<cfset processDirectory(startingDirectory:"#directory#/#name#",recursive:true) />
+			<cfset processDirectory(startingDirectory:scoperFileName, recursive:true) />
 		</cfif>
 		
 	</cfloop>
-
 </cffunction>
 
 
