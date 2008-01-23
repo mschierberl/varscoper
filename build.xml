@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://localhost/ant2html.xsl"?>
+<project name="varscoper" default="runVarScoper" basedir=".">
+	
+	<target name="runVarScoper" >
+		<property name="varScoperBaseUrl" value="http://localhost/varscoper/varScoper.cfm"/>
+		<property name="filePathToUse" value="testCasecfc.cfc"/>
+		<fail>
+		     <condition>
+		     	<not>
+		       		<http url="${varScoperBaseUrl}?filePath=${filePathToUse}&amp;displayFormat=screen&amp;sendbadstatus=true" />
+		     	</not>
+		     </condition>
+		</fail>
+	</target>
+	
+</project>
