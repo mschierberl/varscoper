@@ -2,10 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="http://localhost/ant2html.xsl"?>
 <project name="varscoper" default="runVarScoper" basedir=".">
 	
-	<target name="runVarScoper" >
+	<target name="init">
 		<property name="varScoperBaseUrl" value="http://localhost/varscoper/varScoper.cfm"/>
-		<property name="filePathToUse" value="testCasecfc.cfc"/>
+		<property name="filePathToUse" value="testCaseCfc.cfc"/>
 		<property name="recursiveDirectory" value="true" />
+	</target>
+	
+	<target name="runVarScoper" >
 		<fail>
 		     <condition>
 		     	<not>
@@ -13,6 +16,22 @@
 		     	</not>
 		     </condition>
 		</fail>
+	</target>
+	
+	<target name="define-tasks" depends="init">
+			<taskdef name="conGet" classname="com.planitax.ant.task.ConditionalGet" classpath="planitax-ant.jar" />
+	</target>
+	
+	<!-- note: this target should fail when running as default (test case has var scope violations-->
+	<target name="runVarScoperConditionalGet" depends="define-tasks">
+		<conGet dest="result" url="${varScoperBaseUrl}">
+			<parameter name ="filePath" value="${filePathToUse}" />
+			<parameter name="displayFormat" value ="csv" />
+			<parameter name="recursiveDirectory" value = "true" />
+			<!-- <FailIfNotFound pattern="&lt;results&gt;&lt;/results&gt;" /> -->
+			<FailIfFound pattern=".cfc" message="var scope violation is found." />
+			<FailIfFound pattern=".cfm" message="var scope violation is found." />
+		</conGet>
 	</target>
 	
 </project>
