@@ -5,10 +5,11 @@
 	<target name="runVarScoper" >
 		<property name="varScoperBaseUrl" value="http://localhost/varscoper/varScoper.cfm"/>
 		<property name="filePathToUse" value="testCasecfc.cfc"/>
+		<property name="recursiveDirectory" value="true" />
 		<fail>
 		     <condition>
 		     	<not>
-		       		<http url="${varScoperBaseUrl}?filePath=${filePathToUse}&amp;displayFormat=screen&amp;sendbadstatus=true" />
+		       		<http url="${varScoperBaseUrl}?filePath=${filePathToUse}&amp;displayFormat=screen&amp;sendbadstatus=true&amp;recursiveDirectory=${recursiveDirectory}" />
 		     	</not>
 		     </condition>
 		</fail>
