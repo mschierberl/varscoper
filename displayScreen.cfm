@@ -1,3 +1,4 @@
+
 <cfset currentFileName = scoperFileName />
 <cfset scoperResults = varscoper.getResultsArray() />
 
@@ -9,6 +10,9 @@
 		<!--- <cfoutput>Check was successful for (#htmlEditFormat(scoperFileName)#)</cfoutput><br><br> --->
 
 	<cfelse>
+		<cfif isDefined('URL.sendBadStatus')>
+			<cfheader statuscode="599" statustext="unscoped">
+		</cfif>
 		<table border="0" cellpadding="2" cellspacing="0" width="100%" class="scoperTable">
 			<tr>
 				<td class="fileTitle" colspan="4">
