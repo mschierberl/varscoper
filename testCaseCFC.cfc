@@ -1,4 +1,4 @@
-<cfcontent reset="true" type="text/xml" file="" deletefile="true"><!--- Problem Files --->
+<!--- Problem Files --->
 <!--- 
 
 
