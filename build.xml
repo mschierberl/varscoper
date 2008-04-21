@@ -27,7 +27,7 @@
 		<conGet dest="result" url="${varScoperBaseUrl}">
 			<parameter name ="filePath" value="${filePathToUse}" />
 			<parameter name="displayFormat" value ="csv" />
-			<parameter name="recursiveDirectory" value = "true" />
+			<parameter name="recursiveDirectory" value = "${recursiveDirectory}" />
 			<!-- <FailIfNotFound pattern="&lt;results&gt;&lt;/results&gt;" /> -->
 			<FailIfFound pattern=".cfc" message="var scope violation is found." />
 			<FailIfFound pattern=".cfm" message="var scope violation is found." />
