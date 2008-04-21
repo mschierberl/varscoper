@@ -21,11 +21,14 @@
 	
 	<cfset var fileQuery = "" />
 	<cfset var scoperFileName = "" />
+
 	
 	<cfdirectory directory="#arguments.startingDirectory#" name="fileQuery">
 	<cfloop query="fileQuery">
 		<cfset scoperFileName = "#arguments.startingDirectory#/#name#" />
 
+
+		
 		<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
 			<cfset variables.totalFiles = variables.totalFiles + 1 />
 			<cfinclude template="varScoperDisplay.cfm">
@@ -33,6 +36,7 @@
 			<cfset processDirectory(startingDirectory:scoperFileName, recursive:true) />
 		</cfif>
 		
+
 	</cfloop>
 </cffunction>
 
@@ -146,10 +150,11 @@ body, input{
 		</cfif>
 		<cfset variables.totalMethods = 0 />
 		<cfset directoryStart = getTickCount() />
+		<cfoutput><script>fileLines = new Array(); </script></cfoutput>	
 		<cfinclude template="varScoperDisplay.cfm">
 		<cfset directoryEnd = getTickCount() />
 		<cfoutput><br><br><span class="summary">Processed 1 file and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
-	
+
 	<cfelseif directoryExists("#url.filePath#") OR directoryExists(expandPath(url.filePath))>
 		<cfif directoryExists(url.filePath)>
 			<cfset startingDirectory = url.filePath>
@@ -165,6 +170,7 @@ body, input{
 		<cfset variables.totalFiles = 0 />
 		<cfset variables.totalMethods = 0 />
 		<cfset directoryStart = getTickCount() />
+		<cfoutput><script>fileLines = new Array(); </script></cfoutput>	
 		<cfset processDirectory(startingDirectory:startingDirectory,recursive:recursive)>
 		<cfset directoryEnd = getTickCount() />
 		<cfoutput><br><br><span class="summary">Processed #variables.totalFiles# files and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
