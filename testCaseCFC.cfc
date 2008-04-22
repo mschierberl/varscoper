@@ -83,6 +83,9 @@
 		<cfset unscopedStruct.foo = "" />
 		<cfset unscopedStruct2[foo] = "" />
 		<cfset unscoped_2.unscopedStruct = "" />
+		
+		<!--- This is a new example, should be showing up --->
+		<cfset unscopedStruct25["someKey"] = correctStruct  />
 
 	</cffunction>
 	
