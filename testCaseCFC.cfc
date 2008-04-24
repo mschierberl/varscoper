@@ -104,14 +104,23 @@
 	
 	<cffunction name="problemCases">
 		<cfset var properScope = structNEw()>
+
+		<cfset foo6.unscoped.foo[""#i#""] = "" />  
+		<cfset variables.foo[""#foo7#""] = "" />
 		
+		<cffeed query="#foo2#" />
+		<cfprocparam variable="foo" type="in" />
+		
+		<cfset properScope.foo2['#foo2#'] = ""/> 
+		<cfset properScope.foo2["#foo2#"] = ""/> 
+
+		<cfset "test#i#" = 1 />
+		<cfset "test.go#i#" = 1 />
+
 	<!---	These were resolved in 1.00 --->
 		<cfparam name="foo.results.foo[i]" default="" />
 		
-		<cfset foo2.unscoped.foo[i] = "" /> 
-		<cfset variables.foo[""#foo#""] = "" />
-		
-		<cfset properScope.foo2[""#foo2#""] = ""/> 
+		<cfset foo5.unscoped.foo["i"] = "" />
 		
 		<!--- Returns false positives --->
 		<cfparam name="variables.foo2[""#foo2#""]" default="">
@@ -155,6 +164,7 @@
 			var stFile = "";
 			var sFileName = "";
 			var rowData = "";
+			var foo4 = "";
 		</cfscript>
 		
 		<cfscript>
@@ -196,12 +206,16 @@
 				
 			CheckMimeType(mimetype_ID=qFile.mimetype_ID);
 			
+			foo3.unscoped.foo["i"] = "";
+			foo10.unscoped.foo['i'] = "";
+			foo4.unscoped.foo[""#i#""] = "";
+			
 			stFile["#variables.sRelatedField#"] = variables.related_ID;
 			
 			// replace special characters
 			sFileName = variables.oFileSystem.checkFileName(stUploadedFile.ClientFile);
 
-			rowdata[fieldElement.XmlAttributes["name"]] = fieldElement.XmlAttributes["value"];
+			rowdata2[fieldElement.XmlAttributes["name"]] = fieldElement.XmlAttributes["value"];
 
 			"dynamic.st#I18n#" = structNew();
 			
