@@ -15,30 +15,59 @@
 		-changed processDirectory() not to be dependant on the resultset that cfdirectory returns for ColdFusion 7 - 8
  --->
 
-
-
 <cffunction name="processDirectory" hint="used to traverse a directory structure">
 	<cfargument name="startingDirectory" type="string" required="true">
 	<cfargument name="recursive" type="boolean" required="false" default="false">
 	
 	<cfset var fileQuery = "" />
 	<cfset var scoperFileName = "" />
-
+	<cfset var xmlDoc = "" />
+	<cfset var directoryexcludelistXML = arrayNew(1) />
+	<cfset var directoryexcludelist = "" />
+	<cfset var fileexcludelistXML = arrayNew(1) />
+	<cfset var fileexcludelist = "" />
+	<cfset var pathsep = iif(server.os.name eq "UNIX",de("/"),de("\")) />
 	
-	<cfdirectory directory="#arguments.startingDirectory#" name="fileQuery">
-	<cfloop query="fileQuery">
-		<cfset scoperFileName = "#arguments.startingDirectory#/#name#" />
-
-
+	<!--- get properties --->
+	<cfif fileExists("#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml")>
+		<!--- get file to parse --->
+		<cfset xmlDoc = XmlParse("properties.xml") />
 		
-		<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
-			<cfset variables.totalFiles = variables.totalFiles + 1 />
-			<cfinclude template="varScoperDisplay.cfm">
-		<cfelseif type IS "Dir" and arguments.recursive >
-			<cfset processDirectory(startingDirectory:scoperFileName, recursive:true) />
+		<!--- get directory exclusion list --->
+		<cfset directoryexcludelistXML = XmlSearch(xmlDoc, "/properties/directoryexcludelist") />
+		<!--- if array size GT 0 the get the value --->
+		<cfif arrayLen(directoryexcludelistXML) GT 0>
+			<cfset directoryexcludelist = trim(directoryexcludelistXML[1].XmlText) />
 		</cfif>
 		
-
+		<!--- get file exclusion list --->
+		<cfset fileexcludelistXML = XmlSearch(xmlDoc, "/properties/fileexcludelist") />
+		<!--- if array size GT 0 the get the value --->
+		<cfif arrayLen(fileexcludelistXML) GT 0>
+			<cfset fileexcludelist = trim(fileexcludelistXML[1].XmlText) />
+		</cfif>
+	</cfif>
+		
+	<cfdirectory directory="#arguments.startingDirectory#" name="fileQuery"  >
+	<cfloop query="fileQuery">
+	
+		<!--- check to see if we want to exclude the diretory or file (from properties file) --->
+		<cfif NOT listFindNoCase(directoryExcludeList, listLast(arguments.startingDirectory, pathsep)) 
+			AND NOT listFindNoCase(fileExcludeList, "#name#")
+			>
+			
+			<cfset scoperFileName = "#arguments.startingDirectory##pathsep##name#" />
+	
+	
+			
+			<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
+				<cfset variables.totalFiles = variables.totalFiles + 1 />
+				<cfinclude template="varScoperDisplay.cfm">
+			<cfelseif type IS "Dir" and arguments.recursive >
+				<cfset processDirectory(startingDirectory:scoperFileName, recursive:true) />
+			</cfif>
+		</cfif>		
+		
 	</cfloop>
 </cffunction>
 
@@ -52,7 +81,6 @@
 <cfelse>
 	<cfset scoperFileName="testCaseCFC.cfc">
 </cfif>
-
 
 
 <html>
