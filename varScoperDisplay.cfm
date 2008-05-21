@@ -49,6 +49,9 @@
 			<cfcase value="XML">
 				<cfinclude template="displayXML.cfm">
 			</cfcase>
+			<cfcase value="unit">
+				<cfinclude template="displayUnit.cfm">
+			</cfcase>
 		</cfswitch>
 		
 	<cfcatch type="noFile">
