@@ -141,6 +141,7 @@
 		<cfset var tempCurrentFunctionStruct	= "" />
 		<cfset var tagTypeIdx					= "" />
 		<cfset var findVarsResult				= "" />
+		<cfset var fileParseText				= "" />
 		
 		<!--- Use a RE to find text within the first cffunction, do this once here and once at the bottom of the loop so we can use a condition loop --->
 			<cfset fileParseText = REReplaceNoCase(fileParseText,"[^\r\n\t\<\!\-\-\-](?=[^\<\-\-\-]*\-\-\-\>)","","all") >
