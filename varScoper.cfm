@@ -26,7 +26,7 @@
 	<cfset var directoryexcludelist = "" />
 	<cfset var fileexcludelistXML = arrayNew(1) />
 	<cfset var fileexcludelist = "" />
-	<cfset var pathsep = iif(server.os.name eq "UNIX",de("/"),de("\")) />
+	<cfset var pathsep = "/" />
 	
 	<!--- get properties --->
 	<cfif fileExists("#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml")>
@@ -52,7 +52,7 @@
 	<cfloop query="fileQuery">
 	
 		<!--- check to see if we want to exclude the diretory or file (from properties file) --->
-		<cfif NOT listFindNoCase(directoryExcludeList, listLast(arguments.startingDirectory, pathsep)) 
+		<cfif NOT listFindNoCase(directoryExcludeList, listLast(replace(arguments.startingDirectory, "\", "/", "ALL"), pathsep))
 			AND NOT listFindNoCase(fileExcludeList, "#name#")
 			>
 			
