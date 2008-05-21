@@ -22,11 +22,13 @@
 		<cfset "test#i#" = 1 /> 
 	</cffunction>
 
-	<cffunction name="bugs">
-		<cfset var url = ''>
-		<cfreturn 0>
+	<cffunction name="bug_4">
+		<cfset var proper = ''>
+		<cfreturn 1>
 		<cfscript>
 			url[getUrlPageIndicator()] = urlPageNo;
+			proper[getUrlPageIndicator()] = urlPageNo;
+			unscoped[getUrlPageIndicator()] = urlPageNo;
 		</cfscript>
 	</cffunction>
 
