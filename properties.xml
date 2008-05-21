@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<properties>
+	<directoryexcludelist>
+		<!-- relative folder paths (Example: com,services, WEB-INF) -->
+	</directoryexcludelist>
+	
+	<fileexcludelist>
+		<!-- relative file paths (Example: testCaseCFC.cfc,testCaseCFC2.cfc) -->
+	</fileexcludelist>
+</properties>
