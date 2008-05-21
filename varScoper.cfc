@@ -467,7 +467,7 @@
 				 --->
 				<!--- <cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\[(.*?)\]","","all")> --->
 
-				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:'[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?);')>
+				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:'[a-zA-Z0-9_\[\"\''\]\(\)\##\.\s]+\=(.*?);')>
 				
 				<!--- Loop over all potential set statements --->
 
