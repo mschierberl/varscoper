@@ -53,6 +53,13 @@
 	
 	<!--- Identify all tags that should be checked here... --->
 	<!--- These are key value pairs where the value is the parameter of the tag used to create a variable --->
+	<!--- attributes defs
+		attribute 1) tag name
+		attribute 2) tag attribute name that accepts the variables
+		
+		attribute 3) tag attribute name that tells the tag it is to accept a variable
+		attribute 4) tag attribute value (read, create, etc) that tells the tag it is to accept a variables (works in conjunction with attribute 3)
+	--->
 	<cfset arrayAppend(variables.tagTypes,"cfloop:index") />
 	<cfset arrayAppend(variables.tagTypes,"cfloop:item") />
 	<cfset arrayAppend(variables.tagTypes,"cfquery:name") />
@@ -63,13 +70,13 @@
 	<cfset arrayAppend(variables.tagTypes,"cfsavecontent:variable") />
 	<cfset arrayAppend(variables.tagTypes,"cfform:name") />
 	<cfset arrayAppend(variables.tagTypes,"cfstoredproc:name")>
-	<cfset arrayAppend(variables.tagTypes,"cfprocparam:variable")>
+	<cfset arrayAppend(variables.tagTypes,"cfprocparam:variable:type:out")>
 	<cfset arrayAppend(variables.tagTypes,"cfhttp:result")>
 	<cfset arrayAppend(variables.tagTypes,"cfquery:result")>
 	<cfset arrayAppend(variables.tagTypes,"cfimage:name")>
 	<cfset arrayAppend(variables.tagTypes,"cfmail:query")>
 	<cfset arrayAppend(variables.tagTypes,"cffeed:name")>
-	<cfset arrayAppend(variables.tagTypes,"cffeed:query")>
+	<cfset arrayAppend(variables.tagTypes,"cffeed:query:action:read")>
 	<cfset arrayAppend(variables.tagTypes,"cfftp:name")>
 	<cfset arrayAppend(variables.tagTypes,"cfwddx:output")>
 	<cfset arrayAppend(variables.tagTypes,"cfobject:name")>
@@ -136,6 +143,8 @@
 		<cfset var findVarsResult				= "" />
 		
 		<!--- Use a RE to find text within the first cffunction, do this once here and once at the bottom of the loop so we can use a condition loop --->
+			<cfset fileParseText = REReplaceNoCase(fileParseText,"[^\r\n\t\<\!\-\-\-](?=[^\<\-\-\-]*\-\-\-\>)","","all") >
+			
 			<cfset functionREfind = ReFindNoCase(RegExCffunction,fileParseText,currentPositionInFile,true)>
 		
 			<!--- Keep looping over the file until we have found all functions --->
@@ -198,7 +207,7 @@
 					
 					<cfloop from="1" to="#arrayLen(variables.tagTypes)#" index="tagTypeIdx">
 
-						<cfset findVarsByTag(currentFunctionName:functionName,tagName:getToken(variables.tagTypes[tagTypeIdx],1,':'),variableName:getToken(variables.tagTypes[tagTypeIdx],2,':'),stringToParse=functionInnerText,positionToStart=positionEndOfVarFind) />
+						<cfset findVarsByTag(currentFunctionName:functionName,tagName:getToken(variables.tagTypes[tagTypeIdx],1,':'),variableName:getToken(variables.tagTypes[tagTypeIdx],2,':'),tagAcceptAttribute:getToken(variables.tagTypes[tagTypeIdx],3,':'),tagAcceptAttributeValue:getToken(variables.tagTypes[tagTypeIdx],4,':'),stringToParse=functionInnerText,positionToStart=positionEndOfVarFind) />
 						
 					</cfloop>
 					
@@ -229,7 +238,7 @@
 				hint="I process a string (generally a block within a function) and return a struct of variables set with var statements">
 		<cfargument name="stringToProcess" required="false" type="string">
 		
-		<cfset var RegExCFsetVar				= "<cfset+[\s]+var+[\s]+[a-zA-Z0-9_\[\]\.\s]+\=(.*?)\>" />
+		<cfset var RegExCFsetVar				= '<cfset+[\s]+var+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?)\>' />
 		<cfset var currentPositionVarFind = 1 />
 		<cfset var returnStruct = structNew() />
 		<cfset var varVariableName = "" />
@@ -247,16 +256,21 @@
 		<cfset var variableCFcommentSTART = "" />
 		<cfset var variableCFcommentEND =""/>
 		
-		<!--- Loop over RegEx to gind all variables that have been correctly var-ed within this cffunction --->
+		<!--- Loop over RegEx to find all variables that have been correctly var-ed within this cffunction --->
 		<cfset varREFind = ReFindNoCase(RegExCFsetVar,arguments.stringToProcess,currentPositionVarFind,true)>
 		<cfloop condition="varREFind.POS[1] NEQ 0">
 			<!--- set varVariableName to the cfset tag --->
 			<cfset varVariableName = mid(arguments.stringToProcess,varREFind.POS[1],varREFind.LEN[1])>
 			<!--- strip the cfset code to isolate the variable name --->
 			<cfset varVariableName = trim(reReplaceNoCase(left(varVariableName,find("=",varVariableName)-1),"<cfset+[\s]+var+[\s]",""))>
-			<!--- add this variable to the var struct - we will set all variables to unused--->
-			<!--- may use this in the future to identify orphaned vars--->
-			<cfset tempVaredStruct["#varVariableName#"] = "unused">
+			
+			<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
+			<cfif NOT isComplexVariableName(varVariableName)>
+				<!--- add this variable to the var struct - we will set all variables to unused--->
+				<!--- may use this in the future to identify orphaned vars--->
+				<cfset tempVaredStruct["#varVariableName#"] = "unused">
+			</cfif>
+			
 			<!--- Update the current parsing position to continue from the end of the cfset --->
 			<cfset currentPositionVarFind = varREFind.POS[1] + varREFind.LEN[1]>
 
@@ -349,7 +363,7 @@
 			<cfargument name="positionToStart" type="numeric" hint="I am the starting position, this is generally right after the var-ed variables">
 			<cfargument name="currentFunctionName" type="string" hint="I am the name of the current function that is being parsed" >
 			
-			<cfset var REcfset = "<cfset+[\s]+[a-zA-Z0-9_\[\]\.\s]+\=(.*?)\>" />
+			<cfset var REcfset = '<cfset+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?)\>' />
 			
 			<cfset var variableREFind = "" />
 
@@ -371,13 +385,20 @@
 				
 				<!--- Check to see if this is properly scoped already, make sure to check dot and array notation --->
 				<cfset VariableNameCfsetIsolate = ListFirst(ListFirst(VariableNameCfsetIsolate,'.'),'[') />
-				<cfif structKeyExists(tempVaredStruct,"#VariableNameCfsetIsolate#")>
-					<!--- Update the var-ed struct to note that we are using this var --->
-					<cfset tempVaredStruct["#VariableNameCfsetIsolate#"] = "used">
-				<cfelse>
-					<!--- Log the unvared struct, just the root, before dot or array notation --->
-					<cfset addToUnVarArray(variableName:"#ListFirst(ListFirst(VariableNameCfsetIsolate,'['),'.')#",VariableContext:VariableNAmeCfSet,textPositionInFunction:variableREFind.POS[1]) />
-					<cfset tempUnvaredStruct["#ListFirst(ListFirst(VariableNameCfsetIsolate,'['),'.')#"] = VariableNameCfset />
+				
+				<!--- string leading and trailing quotes and pounds --->
+				<cfset VariableNameCfsetIsolate = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(VariableNameCfsetIsolate) />
+				
+				<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
+				<cfif NOT isComplexVariableName(VariableNameCfsetIsolate)>
+					<cfif structKeyExists(tempVaredStruct,"#VariableNameCfsetIsolate#")>
+						<!--- Update the var-ed struct to note that we are using this var --->
+						<cfset tempVaredStruct["#VariableNameCfsetIsolate#"] = "used">
+					<cfelse>
+						<!--- Log the unvared struct, just the root, before dot or array notation --->
+						<cfset addToUnVarArray(variableName:"#ListFirst(ListFirst(VariableNameCfsetIsolate,'['),'.')#",VariableContext:VariableNAmeCfSet,textPositionInFunction:variableREFind.POS[1]) />
+						<cfset tempUnvaredStruct["#ListFirst(ListFirst(VariableNameCfsetIsolate,'['),'.')#"] = VariableNameCfset />
+					</cfif>
 				</cfif>
 				
 				<!--- Update the current parsing position to start from the end of the cfset statement --->
@@ -433,20 +454,20 @@
 				<!--- Strip out for loops at start of statement, this is needed after Harry's fixes: ms --->
 				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"for\s?\(","","all")>
 
-				<!--- strip out function calls ($custom:hkl)
+				<!--- strip out variable sets within function calls ($custom:hkl)
 					quick and dirty, used for cases like
 						method(a=x, b=y);
 				 --->
-				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\((.*?)\)","","all")>
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\((.*?)\)","()","all")>
                                
 				<!--- strip out bracket statements ($custom:hkl)
 					quick and dirty, used for cases like
 						stTest["mykey"] = value;
 				 --->
-				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\[(.*?)\]","","all")>
+				<!--- <cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\[(.*?)\]","","all")> --->
 
-				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:"[a-zA-Z0-9_\[\]\.\s]+\=(.*?);")>
-							
+				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:'[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?);')>
+				
 				<!--- Loop over all potential set statements --->
 
 				<cfloop from="1" to="#arrayLen(setStatementArray)#" index="setStatementIdx">
@@ -459,15 +480,21 @@
 						<!--- Check to see if this is properly scoped already, make sure to check dot and array notation --->
 						<cfset variableNameSetIsolate = left(variableNameSetIsolate,find("=",variableNameSetIsolate)-1) />
 						<cfset VariableNamesetIsolate = trim(ListFirst(ListFirst(VariableNamesetIsolate,'.'),'[')) />
-					
-						<cfif structKeyExists(tempVaredStruct,"#VariableNamesetIsolate#")>
-							<!--- Update the var-ed struct to note that we are using this var --->
-							<cfset tempVaredStruct["#VariableNamesetIsolate#"] = "used">
-						<cfelse>
-							<!--- Log the unvared struct, just the root, before dot or array notation --->
-							<cfset addToUnVarArray(variableName:"#VariableNamesetIsolate#",VariableContext:setStatementArray[setStatementIdx],textPositionInFunction:"0") />
-							<cfset tempUnvaredStruct["#VariableNamesetIsolate#"] = setStatementArray[setStatementIdx] />
-					
+						
+						<!--- string leading and trailing quotes and pounds --->
+						<cfset VariableNamesetIsolate = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(VariableNamesetIsolate) />
+
+						<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
+						<cfif NOT isComplexVariableName(VariableNamesetIsolate)>
+							<cfif structKeyExists(tempVaredStruct,"#VariableNamesetIsolate#")>
+								<!--- Update the var-ed struct to note that we are using this var --->
+								<cfset tempVaredStruct["#VariableNamesetIsolate#"] = "used">
+							<cfelse>
+								<!--- Log the unvared struct, just the root, before dot or array notation --->
+								<cfset addToUnVarArray(variableName:"#VariableNamesetIsolate#",VariableContext:setStatementArray[setStatementIdx],textPositionInFunction:"0") />
+								<cfset tempUnvaredStruct["#VariableNamesetIsolate#"] = setStatementArray[setStatementIdx] />
+						
+							</cfif>
 						</cfif>
 					</cfif>
 				</cfloop>
@@ -481,6 +508,8 @@
 		hint="I scope for tags that can create variables, (cfquery, cffile, etc)">
 		<cfargument name="tagName" type="string" hint="I am the name of the tag">
 		<cfargument name="variableName" type="string" hint="I am the name of the variable that needs to be checked in this tag">
+		<cfargument name="tagAcceptAttribute" type="string" hint="I hold the possibly tag attribute that allows the tag to accept a variable (example: action='read' for cffeed)">
+		<cfargument name="tagAcceptAttributeValue" type="string" hint="I hold the value that the tagAcceptAttribute uses to allow the tag to accept a variable">
 		<cfargument name="stringToParse" type="string" hint="I am the block of text that will be parsed to find unscoped vars">
 		<cfargument name="positionToStart" type="numeric" hint="I am the starting position, this is generally right after the var-ed variables">
 		<cfargument name="currentFunctionName" type="string" hint="I am the name of the current function that is being parsed" >
@@ -501,16 +530,33 @@
 	
 			<!--- Loop as long as we find more instances of this tag --->
 			<cfloop condition="loopREFind.POS[1] NEQ 0">
-				<cftry>
+				<cftry>					
 						<!--- Isolate this tag --->
-						<cfset tagIsolationString = mid(functionInnerText,loopREFind.POS[1],loopREFind.LEN[1]) />
+						<!--- Remove all RT, NL and TABS to help with variable debug display --->
+						<cfset tagIsolationString = ReReplaceNoCase(mid(functionInnerText,loopREFind.POS[1],loopREFind.LEN[1]), "[\r\n\t]", "", "ALL") />
 	
 						<!--- Use a RE to find instance of the variable name statement --->
 						<!--- This will find the variable name, then a value following the equals sign enclosed in single or double quotes --->
-						
+											
 						<cfset findVariableRE = ReFindNoCase('#arguments.variableName#(\s?)+\=(\s?)(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
 						
-						<cfif findVariableRE.POS[1] EQ 0>
+						<!--- Flow
+							1. Check to see if the tag:variable (attributes 1 & 2 within tagTypes array) attributes was found
+							2a. Make sure tagAcceptAttribute is not empty
+							2b. Make sure tagAcceptAttributeValue is not empty
+							2c. Check to see if the tag has the proper tag action to accept a variable (attributes 3 & 4 within tagTypes array. 
+							    If found then mark as a valid tag that can accept a variable and continue the varScoper check otherwise flag it as a tag that CREATES a variable (which does not need to be scoped)
+						--->
+						<cfif findVariableRE.POS[1] EQ 0 
+							OR 
+								(
+									arguments.tagAcceptAttribute IS NOT ""
+									AND
+									arguments.tagAcceptAttributeValue IS NOT ""
+									AND
+									NOT REFindNoCase('#arguments.tagAcceptAttribute#(\s?)+\=(\s?)(["'']?)#arguments.tagAcceptAttributeValue#(["'']?)',tagIsolationString,1)
+								)
+							>
 							<!--- NOTE: I was throwing an exception here, but it was annoying seeing so many in the debug output --->
 							<!--- <cfthrow type="unknownVariableType" > --->
 							<!--- message="#arguments.variableName# does not exist within #arguments.tagName#" --->
@@ -525,7 +571,10 @@
 		
 							<!--- TODO: does this work specifyin multiple delimiters in one function call --->
 							<cfset variableNameIsolationString = ListFirst(ListFirst(variableNameIsolationString,'['),'.')>
-		
+							
+							<!--- string leading and trailing quotes and pounds --->
+							<cfset variableNameIsolationString = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(variableNameIsolationString) >
+						
 							<!--- Check to see if this is properly scoped already, make sure to check dot and array notation --->
 							<cfif structKeyExists(variables.varscoperStruct["#arguments.currentFunctionName#"].varedStruct,"#variableNameIsolationString#")>
 								<!--- Update the var-ed struct to note that we are using this var --->
@@ -638,6 +687,50 @@
 		</cfloop>
 		
 		<cfreturn returnArray>
+	</cffunction>
+	
+	<cffunction name="isComplexVariableName" access="public" output="false" returntype="boolean"
+		hint="I check to make sure the variable is not too complex to figure out">
+		<cfargument name="variableName" type="string" required="true" />
+		
+		<cfset var REComplexVariableChars = "[\##]" />
+		
+		<cfif REFindNoCase(REComplexVariableChars, arguments.variableName, 1)>
+			<cfreturn true />	
+		</cfif>
+		<cfreturn false />
+		
+	</cffunction>
+	
+	<cffunction name="stripLeadingAndTrailingQuotesAndPoundsFromVariableName" access="public" output="false" returntype="string">
+		<cfargument name="variableName" type="string" required="true" />
+		
+		<cfset var variableNameIsolationString = arguments.variableName />
+		
+		<!--- clear out before and after "'s --->
+		<!--- this catch is here for variables that are set like so "test.go#1#", which will remove the "'s from the variable --->
+		<!--- let's check the left side first --->
+		<cfif left(variableNameIsolationString, 1) EQ '"'>
+			<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
+		</cfif>
+		<!--- let's now work on the right --->
+		<cfif right(variableNameIsolationString, 1) IS '"'>
+			<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
+		</cfif>
+		
+		<!--- clear out before and after #'s --->
+		<!--- this catch is here for tags that can accept variables to help dictate their return variable name --->
+		<!--- let's check the left side first --->
+		<cfif left(variableNameIsolationString, 1) EQ "##">
+			<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
+		</cfif>
+		<!--- let's now work on the right --->
+		<cfif right(variableNameIsolationString, 1) IS "##">
+			<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
+		</cfif>
+		
+		<cfreturn variableNameIsolationString />
+	
 	</cffunction>
 	
 	<cffunction name="getResultsStruct" access="public" output="false" returntype="struct" 
