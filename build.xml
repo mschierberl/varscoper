@@ -8,7 +8,7 @@
 		<property name="recursiveDirectory" value="true" />
 	</target>
 	
-	<target name="runVarScoper" >
+	<target name="runVarScoper">
 		<fail>
 		     <condition>
 		     	<not>
@@ -19,7 +19,7 @@
 	</target>
 	
 	<target name="define-tasks" depends="init">
-			<taskdef name="conGet" classname="com.planitax.ant.task.ConditionalGet" classpath="planitax-ant.jar" />
+			<taskdef name="conGet" classname="com.varscoper.ant.task.ConditionalGet" classpath="varscoper.jar" />
 	</target>
 	
 	<!-- note: this target should fail when running as default (test case has var scope violations-->
@@ -33,5 +33,5 @@
 			<FailIfFound pattern=".cfm" message="var scope violation is found." />
 		</conGet>
 	</target>
-	
+		
 </project>
