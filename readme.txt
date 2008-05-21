@@ -24,6 +24,31 @@ Installation Instructions:
 	Navigate to index.cfm or varscoper.cfm and enter the absolute or relative 
 	path to the template or directory that you would like to check. 
 
+History
+	-v1.2
+		-Significant improvements to cfscript parsing engine
+		-Issues (6,7,8,9,10,11) fixed
+		-Ability to exclude files/folders using properties.xml (only when parsing a folder)
+		-Ability to identify tags with "multiple personalities" i.e. cffeed/cfprocparam that can have different behaviors for output variables based on params
+		-More agressive var scope checking (newly identified scenarios that were missed before)
+	-v1.12
+		-added new tags to the parsing engine
+		-added XML output support
+		-fixed some bugs related to directory parsing in CF6
+	-v1.1
+		-added support for cfscript
+	-v1.0
+		-initial release
+		-cf tag support
+		-Find unscoped variables created with a cfset within a cffunction
+		-Find unscoped variables created with cftags (cfloop, cfquery, etc)
+		-Report line numbers and link directly to the line in the file
+		-Output to screen or csv
+
+
+
+
+
 
 Features:
 	-Identifies unscoped variables within cffunctions
@@ -31,8 +56,8 @@ Features:
 
 Known Limitations:
 	
-	-Returns false positive when variables are set within a comments block
-	-If you don't scope an argument value, and then reference that value it 
+	-(fixed 1.13) Returns false positive when variables are set within a comments block 
+	-(fixed 1.13) If you don't scope an argument value, and then reference that value it 
 	 will "technically" return a false positive...
 		<cfargument name="foo">
 		<cfset foo.foo2 = bar /> 
@@ -40,9 +65,9 @@ Known Limitations:
 		<cfset arguments.foo.foo2 />
 
 Future TODOs:
-	-create a library of all cf tags that can create variables
-	-cfscript
-	-ignore things in comments (May need to use lookbehind?  Not supported in CF as far as I know)
+	-(fixed 1.13) create a library of all cf tags that can create variables
+	-(fixed 1.13) cfscript
+	-(fixed 1.13) ignore things in comments (May need to use lookbehind?  Not supported in CF as far as I know)
 	-Integration with cfeclipse
 
 How can I help?
