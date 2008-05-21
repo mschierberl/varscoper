@@ -15,6 +15,8 @@
 		-changed processDirectory() not to be dependant on the resultset that cfdirectory returns for ColdFusion 7 - 8
  --->
 
+
+
 <cffunction name="processDirectory" hint="used to traverse a directory structure">
 	<cfargument name="startingDirectory" type="string" required="true">
 	<cfargument name="recursive" type="boolean" required="false" default="false">
@@ -40,12 +42,17 @@
 	</cfloop>
 </cffunction>
 
+<cfif isDefined("URL.displayFormat") and url.displayFormat IS "unit">
+	<cfset url.filePath="testCaseCFC.cfc">
+	<cfset URL.parseCfscript = true />
+</cfif>
 
 <cfif isdefined("url.filePath")>
 	<cfset scoperFileName=url.filePath>
 <cfelse>
 	<cfset scoperFileName="testCaseCFC.cfc">
 </cfif>
+
 
 
 <html>
@@ -95,7 +102,7 @@ body, input{
 <body>
 
 <cfsetting showdebugoutput="false">
-
+<cfparam name="displayFormat" default="">
 <form action="varScoper.cfm" method="get" name="scoperForm" id="scoperForm" <!--- onsubmit="document.scoperForm.submitButton.disabled=true;" --->>
 	absolute path:
 	<cfoutput>
@@ -103,10 +110,11 @@ body, input{
 	</cfoutput>
 	<input type="submit" value="start" name="submitButton" id="submitButton" /><br>
 	output: 
-	<input type="radio" name="displayFormat" value="screen" checked> screen
-	<input type="radio" name="displayFormat" value="csv" > csv
-	<input type="radio" name="displayFormat" value="xml" > xml
-	<input type="radio" name="displayFormat" value="dump" > dump (debug)
+	<input type="radio" name="displayFormat" value="screen" <cfif displayFormat is "" or displayFormat IS "screen">checked</cfif>> screen
+	<input type="radio" name="displayFormat" value="csv" <cfif  displayFormat IS "csv">checked</cfif>> csv
+	<input type="radio" name="displayFormat" value="xml" <cfif  displayFormat IS "xml">checked</cfif>> xml
+	<input type="radio" name="displayFormat" value="unit" <cfif  displayFormat IS "unit">checked</cfif>> unit test
+	<input type="radio" name="displayFormat" value="dump" <cfif  displayFormat IS "dump">checked</cfif>> dump (debug)
 	<br>
 	<input type="checkbox" name="showDuplicates" value="true" <cfif isDefined("URL.showDuplicates") and URL.showDuplicates>checked</cfif>> show duplicates (useful if some setters are in comments) 
 	<!--- <input type="checkbox" name="hideLineNumbers" value="true" <cfif isDefined("URL.hideLineNumbers") and URL.hideLineNumbers>checked</cfif>> hide line numbers --->
