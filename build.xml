@@ -33,5 +33,13 @@
 			<FailIfFound pattern=".cfm" message="var scope violation is found." />
 		</conGet>
 	</target>
-		
+	
+	<target name="build-distro">
+		<input message="zip filename"
+			addproperty="zipFileName" />
+		<zip destfile="${zipFileName}.zip">
+			<zipfileset dir="." includes="*.*" excludes=".project,*.zip" prefix="varscoper"/>
+		</zip>
+	</target>
+	
 </project>
