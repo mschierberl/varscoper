@@ -31,6 +31,7 @@ History
 		-Ability to exclude files/folders using properties.xml (only when parsing a folder)
 		-Ability to identify tags with "multiple personalities" i.e. cffeed/cfprocparam that can have different behaviors for output variables based on params
 		-More agressive var scope checking (newly identified scenarios that were missed before)
+		-Addition of unit testing suite
 	-v1.12
 		-added new tags to the parsing engine
 		-added XML output support
