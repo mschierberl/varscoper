@@ -22,6 +22,14 @@
 		<cfset "test#i#" = 1 /> 
 	</cffunction>
 
+	<cffunction name="bugs">
+		<cfset var url = ''>
+		<cfreturn 0>
+		<cfscript>
+			url[getUrlPageIndicator()] = urlPageNo;
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="simpleVarTest">
 		<cfset var correctSimpleVar = "" />
 		<cfset   var correctSimpleVar2 = "" />
