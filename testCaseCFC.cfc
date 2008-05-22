@@ -22,6 +22,17 @@
 		<cfset "test#i#" = 1 /> 
 	</cffunction>
 
+	<cffunction name="TODO_BUGS">
+	    <cfreturn 1>
+
+		<cfset unscoped = ''>
+		
+		<cfscript>
+			someFunction();
+		</cfscript>
+
+	</cffunction>
+
 	<cffunction name="bug_4">
 		<cfset var proper = ''>
 		<cfreturn 1>
