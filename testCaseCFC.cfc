@@ -144,10 +144,7 @@
 	<cffunction name="problem_b">
 			
 		<!--- This is for unit test, update if test case changes --->
-		<cfreturn 2>
-		
-		<cffeed query="#foo2#" source="blah" />
-		<cffeed query="unscoped" action="read" source="http://">
+		<cfreturn 1>
 		
 		<cfprocparam variable="correctProcParamIn" type="in" cfsqltype="CF_SQL_BIGINT" />
 		<cfprocparam variable="unscopedProcParamOut" type="out" cfsqltype="CF_SQL_BIGINT" />
