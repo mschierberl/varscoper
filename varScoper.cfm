@@ -22,6 +22,7 @@
 	<cfset var fileQuery = "" />
 	<cfset var scoperFileName = "" />
 	<cfset var xmlDoc = "" />
+	<cfset var xmlDocData = "" />
 	<cfset var directoryexcludelistXML = arrayNew(1) />
 	<cfset var directoryexcludelist = "" />
 	<cfset var fileexcludelistXML = arrayNew(1) />
@@ -30,8 +31,12 @@
 	
 	<!--- get properties --->
 	<cfif fileExists("#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml")>
+
+		<!--- read xml file --->
+		<cffile action="read" file="#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml" variable="xmlDocData">
+
 		<!--- get file to parse --->
-		<cfset xmlDoc = XmlParse("properties.xml") />
+		<cfset xmlDoc = XmlParse(xmlDocData) />
 		
 		<!--- get directory exclusion list --->
 		<cfset directoryexcludelistXML = XmlSearch(xmlDoc, "/properties/directoryexcludelist") />
