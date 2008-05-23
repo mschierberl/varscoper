@@ -16,6 +16,7 @@
 	</cffunction>
 
 	<cffunction name="TODO">
+		<cfset var cfcatch = ''>
 		<cfreturn 1>
 		<!--- NOTE: this should return a violation even though we can't evaluate #i# at runtime --->
 		<!--- I'd like this in to indicate to the users that they might have an issue --->
@@ -23,7 +24,7 @@
 	</cffunction>
 
 	<cffunction name="TODO_BUGS">
-	    <cfreturn 1>
+	     <cfreturn 1>
 
 		<cfset unscoped = ''>
 		
@@ -33,6 +34,82 @@
 
 	</cffunction>
 
+
+	<cffunction name="transfer_example" >
+		
+		<cfscript>
+		var table = '';
+		return 0;
+			return table & "." & object.getPropertyByName(arguments.condition.getProperty()).getColumn() & " = '" & arguments.condition.getValue() & "'";
+
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="cfscript_nested_square_brackets_with_operation" access="public" hint="Quite unusual but has been seen on wild.">
+		<cfscript>
+			var aScopedArray1 = arrayNew(1);
+			var aScopedArray2 = arrayNew(1);
+		
+			return 0;
+		
+			aScopedArray1[1] = "Hello World";
+			aScopedArray2[1] = 1;  
+		
+			aScopedArray1[aScopedArray2[1] + 1] = "Foobar";
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="cfscript_semicolon_within_quoted_string" access="public" hint="This can easily happen when building URL parameters">
+		<cfscript>
+			var sScoped = "";
+			return 0;
+			sScoped = "&amp;quotedString=value";
+		</cfscript>
+	</cffunction> 
+
+	<cffunction name="cfscript_with_dash">
+		<cfscript>
+	
+			var LOCAL = StructNew();
+			return 0;
+	
+			LOCAL.CSS[ "background-color" ] = "";
+	
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="cfscript_sFileName">
+		<cfscript>
+			var sFileName = "";
+			var stReturn  = "";		
+			return 0;
+			
+			if (variables.oFileSystem.checkFilePath(sDestination&sFileName))
+					sFileName = variables.oFileSystem.getAlternativeFileName(sDestination,sFileName);
+			if (Compare(stUploadedFile.ServerFile,sFileName)) {
+ 					stReturn.bFileRenamed = true;
+			}	
+			
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="cfscript_complex_for">
+		<!--- Note, this example was from harry, the //data was from an XMLParse in the var statement --->
+		<cfscript>
+			var length = len("//data");
+			return 0;
+			for (i=1; i lte ArrayLen(arrTables);i=i+1) {};
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="cfscript_funny_chars">
+		<cfscript>
+			var iMail = find("@", '');
+ 	   	 	var notallowed = " ;:!$%/()=?*";
+ 	    	return 0;
+ 	    </cfscript>
+	</cffunction>
+	
 	<cffunction name="bug_4">
 		<cfset var proper = ''>
 		<cfreturn 1>
