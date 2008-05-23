@@ -352,6 +352,7 @@
 			<cfset returnStruct.endVarLine = currentPositionVariableFind>
 		</cfif>
 		
+		<cfset returnStruct.endVarLine = currentPositionVarFind>		
 		<cfset returnStruct.variableNames = tempVaredStruct />
 		
 		<cfreturn returnStruct>
@@ -711,23 +712,27 @@
 		<!--- clear out before and after "'s --->
 		<!--- this catch is here for variables that are set like so "test.go#1#", which will remove the "'s from the variable --->
 		<!--- let's check the left side first --->
-		<cfif left(variableNameIsolationString, 1) EQ '"'>
-			<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
-		</cfif>
-		<!--- let's now work on the right --->
-		<cfif right(variableNameIsolationString, 1) IS '"'>
-			<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
-		</cfif>
-		
-		<!--- clear out before and after #'s --->
-		<!--- this catch is here for tags that can accept variables to help dictate their return variable name --->
-		<!--- let's check the left side first --->
-		<cfif left(variableNameIsolationString, 1) EQ "##">
-			<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
-		</cfif>
-		<!--- let's now work on the right --->
-		<cfif right(variableNameIsolationString, 1) IS "##">
-			<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
+
+		<cfif len(variableNameIsolationString) NEQ 1>
+			<cfif left(variableNameIsolationString, 1) EQ '"'>
+				<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
+			</cfif>
+	
+			<!--- let's now work on the right --->
+			<cfif right(variableNameIsolationString, 1) IS '"' >
+				<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
+			</cfif>
+			
+			<!--- clear out before and after #'s --->
+			<!--- this catch is here for tags that can accept variables to help dictate their return variable name --->
+			<!--- let's check the left side first --->
+			<cfif left(variableNameIsolationString, 1) EQ "##"  >
+				<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
+			</cfif>
+			<!--- let's now work on the right --->
+			<cfif right(variableNameIsolationString, 1) IS "##" >
+				<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
+			</cfif>
 		</cfif>
 		
 		<cfreturn variableNameIsolationString />
