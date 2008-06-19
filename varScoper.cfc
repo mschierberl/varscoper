@@ -498,7 +498,7 @@
 						<!--- Use a RE to find instance of the variable name statement --->
 						<!--- This will find the variable name, then a value following the equals sign enclosed in single or double quotes --->
 											
-						<cfset findVariableRE = ReFindNoCase('#arguments.variableName#(\s?)+\=(\s?)(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
+						<cfset findVariableRE = ReFindNoCase('#arguments.variableName#(\s?)\=(\s?)(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
 						
 						<!--- Flow
 							1. Check to see if the tag:variable (attributes 1 & 2 within tagTypes array) attributes was found
@@ -507,6 +507,9 @@
 							2c. Check to see if the tag has the proper tag action to accept a variable (attributes 3 & 4 within tagTypes array. 
 							    If found then mark as a valid tag that can accept a variable and continue the varScoper check otherwise flag it as a tag that CREATES a variable (which does not need to be scoped)
 						--->
+						
+								
+						
 						<cfif findVariableRE.POS[1] EQ 0 
 							OR 
 								(
