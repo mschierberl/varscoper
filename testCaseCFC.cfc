@@ -6,6 +6,19 @@
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 
+	<cffunction name="_setStaticFields" hint="loops around all the fields and sets the static one to this scope" access="private" returntype="void" output="false">
+		<cfscript>
+			
+			var counter = 1;
+			
+			return 0;
+			for(; counter <= len; counter++)
+			{
+			 
+			}
+		</cfscript>
+	</cffunction>
+	
 	<cffunction name="TODO_cfscript_return">
 		<cfreturn 0>
 		<cfscript>
@@ -15,7 +28,7 @@
 	
 	</cffunction>
 
-	<cffunction name="TODO">
+	<cffunction name="resolved_TODO">
 		<cfset var cfcatch = ''>
 		<cfreturn 1>
 		<!--- NOTE: this should return a violation even though we can't evaluate #i# at runtime --->
@@ -23,7 +36,7 @@
 		<cfset "test#i#" = 1 /> 
 	</cffunction>
 
-	<cffunction name="TODO_BUGS">
+	<cffunction name="resolved_TODO_BUGS">
 	     <cfreturn 1>
 
 		<cfset unscoped = ''>
@@ -34,6 +47,13 @@
 
 	</cffunction>
 
+	<cffunction name="resolved_TODO_comments">
+		<cfset var outsideComments = "" />
+		<cfset var WithinComments = "" /> --->
+		<cfreturn 0>
+		<!--- <cfset WithinComments = ""/> --->
+		
+	</cffunction>
 
 	<cffunction name="transfer_example" >
 		
@@ -44,7 +64,7 @@
 
 		</cfscript>
 	</cffunction>
-
+<!--- TODO: mike --->
 	<cffunction name="cfscript_nested_square_brackets_with_operation" access="public" hint="Quite unusual but has been seen on wild.">
 		<cfscript>
 			var aScopedArray1 = arrayNew(1);
