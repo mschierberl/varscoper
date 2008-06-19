@@ -5,8 +5,8 @@
  --->
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
-
-	<cffunction name="_setStaticFields" hint="loops around all the fields and sets the static one to this scope" access="private" returntype="void" output="false">
+	
+	<cffunction name="setStaticFields"  >
 		<cfscript>
 			
 			var counter = 1;
@@ -18,6 +18,68 @@
 			}
 		</cfscript>
 	</cffunction>
+
+	<cffunction name="cfftp_variables">
+		<cfset var scopedFtp = "">
+		<cfset var ListDirs = "">
+	
+		<cfreturn 1>	
+		<!--- <cfftp 
+			connection =""
+		    action = "LISTDIR"
+		    name = "ListDirs"
+		    directory = "/"> --->
+
+		<cfftp 
+			connection = "myConnection"
+			action="close" 
+			transferMode = "binary" 
+			result="scopedFtp"
+			>
+
+		
+		<cfset cfftp.test = "" />
+		<cfset scopedFtp.test = "" />
+		<cfset listDirs.test = ""/>
+		
+	</cffunction>	
+	
+	<cffunction name="issue_18">
+		<cfreturn 1>
+		<!--- http://varscoper.riaforge.org/index.cfm?event=page.issueedit&issueid=83600F2D-F568-1871-197DE915EF2AB2C6 --->
+		<cfset scope[getLoggingPath()].data = arrayConcat(data["emailLogger"].data, scope[getLoggingPath()].data) />
+	</cffunction>
+	
+	<cffunction name="issue_17">
+		<cfreturn 0>
+		<cfloop condition="">
+		
+		</cfloop>
+	</cffunction>
+	
+	<cffunction name="testVar_Issue_19">
+		<cfscript>
+			var testVar = true;
+	
+			return 0;
+			
+			//This does not work: says ") testVar" is not scoped.
+			if (testVar EQ "true")
+			   testVar = false;
+			else
+			   testVar = true;
+			
+			//This does validate correctly.
+			if (testVar EQ "true") {
+			   testVar = false;
+			}
+			else {
+			   testVar = true;
+			}
+		</cfscript>
+		  
+	</cffunction>
+	
 	
 	<cffunction name="TODO_cfscript_return">
 		<cfreturn 0>
@@ -35,9 +97,18 @@
 		<!--- I'd like this in to indicate to the users that they might have an issue --->
 		<cfset "test#i#" = 1 /> 
 	</cffunction>
+	
+	<cffunction name="falsepositive" >
+		<cfset var cfcatch = ''>
+		
+		<cfreturn 1>
+		<!--- NOTE: this should return a violation even though we can't evaluate #i# at runtime --->
+		<!--- I'd like this in to indicate to the users that they might have an issue --->
+		<cfset "test#i#" = 1 /> 
+	</cffunction>
 
 	<cffunction name="resolved_TODO_BUGS">
-	     <cfreturn 1>
+	    <cfreturn 1>
 
 		<cfset unscoped = ''>
 		
@@ -47,12 +118,19 @@
 
 	</cffunction>
 
-	<cffunction name="resolved_TODO_comments">
+	<cffunction name="resolved_TODO_comments" output="false">
 		<cfset var outsideComments = "" />
-		<cfset var WithinComments = "" /> --->
+		<cfset var WithinComments = "" /> --->  <!--- Note, leave the extra trailing comment here, when we include the ability to strip comments it introduces problems in other functions --->
+		
+		
 		<cfreturn 0>
 		<!--- <cfset WithinComments = ""/> --->
 		
+	</cffunction>
+	
+	<cffunction name="falsePositive_comments">
+		<cfreturn 0>
+		<!--- <cfset withinComments = ""> --->
 	</cffunction>
 
 	<cffunction name="transfer_example" >
@@ -64,7 +142,7 @@
 
 		</cfscript>
 	</cffunction>
-<!--- TODO: mike --->
+
 	<cffunction name="cfscript_nested_square_brackets_with_operation" access="public" hint="Quite unusual but has been seen on wild.">
 		<cfscript>
 			var aScopedArray1 = arrayNew(1);
@@ -117,7 +195,7 @@
 		<!--- Note, this example was from harry, the //data was from an XMLParse in the var statement --->
 		<cfscript>
 			var length = len("//data");
-			return 0;
+			return 1;
 			for (i=1; i lte ArrayLen(arrTables);i=i+1) {};
 		</cfscript>
 	</cffunction>
@@ -155,6 +233,15 @@
 		<cfset correctSimpleVar4 = "">
 		<!--- <cfset WithinComments = "" /> --->
 		
+		<!--- <cfscript>
+			thread = createObject("java", "java.lang.Thread");
+			thread.sleep(3000);
+		</cfscript> --->
+		<!--- <cfset result = existingFile.checkIn(context:variables.xythosContext) />
+		<cfscript>
+			thread = createObject("java", "java.lang.Thread");
+			thread.sleep(2000);
+		</cfscript> --->
 		
 		<cfset unscopedSimpleVar ="">
 		<cfset unscoped.var2	="" >
@@ -254,8 +341,9 @@
 		<!--- This is for unit test, update if test case changes --->
 		<cfreturn 1>
 		
-		<cfprocparam variable="correctProcParamIn" type="in" cfsqltype="CF_SQL_BIGINT" />
+		
 		<cfprocparam variable="unscopedProcParamOut" type="out" cfsqltype="CF_SQL_BIGINT" />
+		<cfprocparam variable="correctProcParamIn" type="in" cfsqltype="CF_SQL_BIGINT" />
 		
 
 	</cffunction>
@@ -346,7 +434,6 @@
 
 			var correctStruct = structNew();
 			var correctLoop = "";
-
 	
 			var stFile = "";
 			var sFileName = "";
@@ -369,6 +456,7 @@
 			
 			for (correctLoop = someFunction();correctLoop LTE 10; correctLoop = correctLoop+1) ;
 			
+			for(; counter <= 10; counter++);
 			
 			unscopedStruct.test = ""
 			;
@@ -389,7 +477,7 @@
 		
 		<cfscript>
 
-			stFile["#variables.sRelatedField#"] = variables.related_ID;
+			stFile = variables.related_ID;
 			stFile_ok["#variables.sRelatedField#"] = variables.related_ID;
 			
 			// replace special characters
@@ -404,7 +492,7 @@
 			variables.logger.writelog('Access Denied for
 			#sFacade.getUserBean().getEmailAddress()# @ #cgi.remote_addr# to event=#arguments.event.getValue("requestedEvent")#', "ERROR");
 
-
+			
 		</cfscript>
 		
 		<cfscript>variables.Logger.logDebug("looking in NDS server #ndsServer# as #ndsUser# for cn=#arguments.username#");</cfscript>
@@ -416,9 +504,10 @@
 		<cfscript>
 			var arr = "";
 			var startRow = ""; 
+			var newStruct = structNew();
 		</cfscript>
 		
-		<cfreturn 3>
+		<cfreturn 5>
 		<cfscript>
 			arr[1] = foo;
 			
@@ -426,6 +515,18 @@
 				startRow = 1;
 			else 
 				startRow = 2;
+				
+			if (len(sFileext))
+				sNewFilename = sNewFilename & "." & sFileext;
+		
+			if ( Find( '.', prefix ) eq 1 )
+				prefix = RemoveChars( prefix, 1, 1 );
+
+			if (structKeyExists(newStruct, prefix) AND structKeyExists(newStruct, prefix)) 
+				"request.st#listLast(sBundle, "\/")#" = prefix;
+			else
+				"request.st#listLast(sBundle, "\/")#" = prefix;
+				
 				
 			CheckMimeType(mimetype_ID=qFile.mimetype_ID);
 			
@@ -442,13 +543,15 @@
             var currentKeyword=''; // loop index
             var tmpQuery=''; // temp query holder
             var ReturnStruct=structnew(); 
+            var stUploadedFile='';
             
             return 0;
             
             ReturnStruct.Query='';
             ReturnStruct.TotRows='';
             currentMode = '';
-            
+    		stUploadedFile = variables.oFileSystem.uploadFile(arguments.sFormField,variables.sTempPath,"*/* "); 
+    		        
         </cfscript>
 	</cffunction>
 
@@ -472,5 +575,5 @@
 			withinComments3 = "foo";
 		</cfscript>
 	</cffunction>
-
+	
 </cfcomponent>
