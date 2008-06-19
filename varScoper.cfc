@@ -351,7 +351,7 @@
 			<cfargument name="positionToStart" type="numeric" hint="I am the starting position, this is generally right after the var-ed variables">
 			<cfargument name="currentFunctionName" type="string" hint="I am the name of the current function that is being parsed" >
 			
-			<cfset var REcfset = '<cfset+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?)\>' />
+			<cfset var REcfset = '<cfset+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s\(\)]+\=(.*?)\>' />
 			
 			<cfset var variableREFind = "" />
 
