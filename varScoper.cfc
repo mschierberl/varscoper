@@ -439,7 +439,7 @@
 				
 				<!--- strip out single line comments 
 					($custom:hkl) use \n instead of chr(), added all --->
-				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"//(.*?)\n","","all")>
+				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"//(.*?)\r?\n","","all")>
 				
 				<!--- strip out multi line comments --->
 				<!--- Note, this will not support the following syntax:  /* /* */  --->
@@ -455,7 +455,7 @@
 
 				<!--- Strip out for loops at start of statement, this is needed after Harry's fixes: ms --->
 				<cfset cfscriptArray[cfscriptIdx] = ReReplaceNoCase(cfscriptArray[cfscriptIdx],"for\s?\(","","all")>
-
+				
 				<!--- strip out variable sets within function calls ($custom:hkl)
 					quick and dirty, used for cases like
 						method(a=x, b=y);
@@ -468,7 +468,10 @@
 				 --->
 				<!--- <cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"\[(.*?)\]","","all")> --->
 
-				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:'[a-zA-Z0-9_\[\"\''\]\(\)\##\.\s]+\=(.*?);')>
+				<!--- remove all returns --->
+				<cfset cfscriptArray[cfscriptIdx] = REReplaceNoCase(cfscriptArray[cfscriptIdx],"return+(.*?)+;","","all")>
+			
+				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx],RegularExpression:'[a-zA-Z0-9_\[\"\''\]\-\(\)\##\.\+\s]*?\=[\w\D]*?;(\s.*?)')>				
 				
 				<!--- Loop over all potential set statements --->
 
@@ -695,7 +698,7 @@
 		hint="I check to make sure the variable is not too complex to figure out">
 		<cfargument name="variableName" type="string" required="true" />
 		
-		<cfset var REComplexVariableChars = "[\##]" />
+		<cfset var REComplexVariableChars = "[\;]" />
 		
 		<cfif REFindNoCase(REComplexVariableChars, arguments.variableName, 1)>
 			<cfreturn true />	
@@ -708,6 +711,7 @@
 		<cfargument name="variableName" type="string" required="true" />
 		
 		<cfset var variableNameIsolationString = arguments.variableName />
+		<cfset var hasPoundAsFirstChar = false />
 		
 		<!--- clear out before and after "'s --->
 		<!--- this catch is here for variables that are set like so "test.go#1#", which will remove the "'s from the variable --->
@@ -728,9 +732,13 @@
 			<!--- let's check the left side first --->
 			<cfif left(variableNameIsolationString, 1) EQ "##"  >
 				<cfset variableNameIsolationString = right(variableNameIsolationString, len(variableNameIsolationString)-1) />
+				<!--- if there is a pound the beginning of the variable then we want to strip the one at the end --->
+				<!--- set variable to true so we can do this later ---> 
+				<cfset hasPoundAsFirstChar = true />
 			</cfif>
 			<!--- let's now work on the right --->
-			<cfif right(variableNameIsolationString, 1) IS "##" >
+			<!--- only strip off the pound if there was one at the beginning of the variable --->
+			<cfif right(variableNameIsolationString, 1) IS "##" AND hasPoundAsFirstChar>
 				<cfset variableNameIsolationString = left(variableNameIsolationString, len(variableNameIsolationString)-1) />
 			</cfif>
 		</cfif>
