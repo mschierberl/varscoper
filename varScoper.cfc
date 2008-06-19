@@ -517,7 +517,7 @@
 									AND
 									arguments.tagAcceptAttributeValue IS NOT ""
 									AND
-									NOT REFindNoCase('#arguments.tagAcceptAttribute#(\s?)+\=(\s?)(["'']?)#arguments.tagAcceptAttributeValue#(["'']?)',tagIsolationString,1)
+									NOT REFindNoCase('#arguments.tagAcceptAttribute#(\s?)\=(\s?)(["'']?)#arguments.tagAcceptAttributeValue#(["'']?)',tagIsolationString,1)
 								)
 							>
 							<!--- NOTE: I was throwing an exception here, but it was annoying seeing so many in the debug output --->
