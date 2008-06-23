@@ -80,6 +80,13 @@
 		  
 	</cffunction>
 	
+	<cffunction name="negative_TODO">
+		<cfreturn 0>
+		
+		<cfset read(id=pkId,object=foo) />
+
+	
+	</cffunction>
 	
 	<cffunction name="TODO_cfscript_return">
 		<cfreturn 0>
