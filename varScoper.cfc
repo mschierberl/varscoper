@@ -44,7 +44,7 @@
 	<cfset variables.currentLineCountPosition	= 1 />
 	<cfset variables.currentLineCountFuncPos	= 1 />
 	<cfset variables.currentFunctionName		= "" />
-	<cfset variables.ignoredScopes				= "variables,this,cgi,form,url,application,arguments,cfcatch,cgi,client,cookie,request,server,session" />
+	<cfset variables.ignoredScopes				= "super,variables,this,cgi,form,url,application,arguments,cfcatch,cgi,client,cookie,request,server,session" />
 	<cfset variables.showDuplicates				= false />
 	<cfset variables.showLineNumbers			= true />
 	<cfset variables.parseCFscript				= false />
@@ -272,8 +272,8 @@
 			<!--- strip the cfset code to isolate the variable name --->
 			<cfset varVariableName = trim(reReplaceNoCase(left(varVariableName,find("=",varVariableName)-1),"<cfset+[\s]+var+[\s]",""))>
 			
-			<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
-			<cfif NOT isComplexVariableName(varVariableName)>
+			<!--- if the variable a good variable name? --->
+			<cfif isGoodVariableName(varVariableName)>
 				<!--- add this variable to the var struct - we will set all variables to unused--->
 				<!--- may use this in the future to identify orphaned vars--->
 				<cfset tempVaredStruct["#varVariableName#"] = "unused">
@@ -377,8 +377,8 @@
 				<!--- string leading and trailing quotes and pounds --->
 				<cfset VariableNameCfsetIsolate = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(VariableNameCfsetIsolate) />
 				
-				<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
-				<cfif NOT isComplexVariableName(VariableNameCfsetIsolate)>
+				<!--- if the variable a good variable name? --->
+				<cfif isGoodVariableName(VariableNameCfsetIsolate)>
 					<cfif structKeyExists(tempVaredStruct,"#VariableNameCfsetIsolate#")>
 						<!--- Update the var-ed struct to note that we are using this var --->
 						<cfset tempVaredStruct["#VariableNameCfsetIsolate#"] = "used">
@@ -443,8 +443,8 @@
 							<!--- string leading and trailing quotes and pounds --->
 							<cfset VariableNamesetIsolate = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(VariableNamesetIsolate) />
 	
-							<!--- if the variable contains complex chars then skip it. It's too complext to figure out the actual variable name --->
-							<cfif NOT isComplexVariableName(VariableNamesetIsolate)>
+							<!--- if the variable a good variable name? --->
+							<cfif isGoodVariableName(VariableNamesetIsolate)>
 								<cfif structKeyExists(tempVaredStruct,"#VariableNamesetIsolate#")>
 									<!--- Update the var-ed struct to note that we are using this var --->
 									<cfset tempVaredStruct["#VariableNamesetIsolate#"] = "used">
@@ -662,16 +662,16 @@
 		<cfreturn returnArray>
 	</cffunction>
 	
-	<cffunction name="isComplexVariableName" access="public" output="false" returntype="boolean"
-		hint="I check to make sure the variable is not too complex to figure out">
+	<cffunction name="isGoodVariableName" access="public" output="false" returntype="boolean"
+		hint="I check to see if this is a good variable name">
 		<cfargument name="variableName" type="string" required="true" />
 		
-		<cfset var REComplexVariableChars = "[\;\(]" />
+		<cfset var REBadVariableChars = "[\;\(]" />
 		
-		<cfif REFindNoCase(REComplexVariableChars, arguments.variableName, 1)>
-			<cfreturn true />	
+		<cfif REFindNoCase(REBadVariableChars, arguments.variableName, 1)>
+			<cfreturn false />	
 		</cfif>
-		<cfreturn false />
+		<cfreturn true />
 		
 	</cffunction>
 	
