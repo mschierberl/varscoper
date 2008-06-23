@@ -666,7 +666,7 @@
 		hint="I check to make sure the variable is not too complex to figure out">
 		<cfargument name="variableName" type="string" required="true" />
 		
-		<cfset var REComplexVariableChars = "[\;]" />
+		<cfset var REComplexVariableChars = "[\;\(]" />
 		
 		<cfif REFindNoCase(REComplexVariableChars, arguments.variableName, 1)>
 			<cfreturn true />	
