@@ -493,12 +493,12 @@
 				<cftry>					
 						<!--- Isolate this tag --->
 						<!--- Remove all RT, NL and TABS to help with variable debug display --->
-						<cfset tagIsolationString = ReReplaceNoCase(mid(functionInnerText,loopREFind.POS[1],loopREFind.LEN[1]), "[\r\n\t]", "", "ALL") />
+						<cfset tagIsolationString = ReReplaceNoCase(mid(functionInnerText,loopREFind.POS[1],loopREFind.LEN[1]), "[\r\n\t]", " ", "ALL") />
 	
 						<!--- Use a RE to find instance of the variable name statement --->
 						<!--- This will find the variable name, then a value following the equals sign enclosed in single or double quotes --->
 											
-						<cfset findVariableRE = ReFindNoCase('#arguments.variableName#(\s?)\=(\s?)(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
+						<cfset findVariableRE = ReFindNoCase('(\s)#arguments.variableName#(\s?)\=(\s?)*(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
 						
 						<!--- Flow
 							1. Check to see if the tag:variable (attributes 1 & 2 within tagTypes array) attributes was found
@@ -517,7 +517,7 @@
 									AND
 									arguments.tagAcceptAttributeValue IS NOT ""
 									AND
-									NOT REFindNoCase('#arguments.tagAcceptAttribute#(\s?)\=(\s?)(["'']?)#arguments.tagAcceptAttributeValue#(["'']?)',tagIsolationString,1)
+									NOT REFindNoCase('(\s)#arguments.tagAcceptAttribute#(\s?)\=(\s?)(["'']?)#arguments.tagAcceptAttributeValue#(["'']?)',tagIsolationString,1)
 								)
 							>
 							<!--- NOTE: I was throwing an exception here, but it was annoying seeing so many in the debug output --->
