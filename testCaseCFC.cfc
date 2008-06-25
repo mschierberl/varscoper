@@ -5,7 +5,35 @@
  --->
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
+		
+	<cffunction name="cfquery_order_a">
 	
+		<cfset var a = structNew()>
+		<cfset a.name='admin'>
+		<cfset a.password='test'>
+		<cfreturn 1>
+		
+		<cfquery name="emailExists" username="#a.name#" password="#a.password#" datasource="data">
+			SELECT email
+			FROM emails
+		</cfquery>
+		
+	</cffunction>
+	
+	<cffunction name="cfquery_order_b">
+	
+		<cfset var a = structNew()>
+		<cfset a.name='admin'>
+		<cfset a.password='test'>
+		
+		<cfreturn 1>
+		<cfquery username="#a.name#" password="#a.password#" name="emailExists" datasource="data">
+			SELECT email
+			FROM emails
+		</cfquery>
+	
+	</cffunction>
+
 	<cffunction name="setStaticFields"  >
 		<cfscript>
 			
@@ -85,7 +113,6 @@
 		
 		<cfset read(id=pkId,object=foo) />
 
-	
 	</cffunction>
 	
 	<cffunction name="TODO_cfscript_return">
