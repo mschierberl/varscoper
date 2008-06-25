@@ -54,7 +54,7 @@
 	</target>
 	
 	<target name="build-distro">
-		<input message="zip filename"
+		<input message="zip filename (don't include .zip)"
 			addproperty="zipFileName" />
 		<zip destfile="${zipFileName}.zip">
 			<zipfileset dir="." includes="*.*" excludes=".project,*.zip" prefix="varscoper"/>
