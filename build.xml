@@ -24,14 +24,33 @@
 	
 	<!-- note: this target should fail when running as default (test case has var scope violations-->
 	<target name="runVarScoperConditionalGet" depends="define-tasks">
-		<conGet dest="result" url="${varScoperBaseUrl}">
+		<tstamp/>
+		<conGet dest=".\${DSTAMP}${TSTAMP}.csv" url="${varScoperBaseUrl}">
 			<parameter name ="filePath" value="${filePathToUse}" />
 			<parameter name="displayFormat" value ="csv" />
 			<parameter name="recursiveDirectory" value = "${recursiveDirectory}" />
-			<!-- <FailIfNotFound pattern="&lt;results&gt;&lt;/results&gt;" /> -->
+			<!-- <FailIfNotFound pattern="&lt;results&gt;&lt;/results&gt;" />
 			<FailIfFound pattern=".cfc" message="var scope violation is found." />
-			<FailIfFound pattern=".cfm" message="var scope violation is found." />
+			<FailIfFound pattern=".cfm" message="var scope violation is found." /> -->
 		</conGet>
+		
+		<loadfile srcfile=".\${DSTAMP}${TSTAMP}.csv" property="varScoper.cvs">  
+			<filterchain>
+				<headfilter skip="1"/>
+				<trim/>
+			</filterchain>
+		</loadfile>
+		  
+		<echo>${varScoper.cvs}</echo>
+		
+		<delete file=".\${DSTAMP}${TSTAMP}.csv"/>
+		
+		<fail message="var scope violation is found.">
+			<condition>
+				<isset property="varScoper.cvs"/>
+			</condition>
+		</fail>
+
 	</target>
 	
 	<target name="build-distro">
@@ -43,3 +62,4 @@
 	</target>
 	
 </project>
+
