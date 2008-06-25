@@ -34,6 +34,15 @@
 	
 	</cffunction>
 
+	<cffunction name="issue_21">
+		
+		<cfreturn 1>
+
+		<cfquery  username="#a.name#" password="#a.password#" name="emailExists" datasource="data">
+
+		</cfquery>
+	</cffunction>
+
 	<cffunction name="setStaticFields"  >
 		<cfscript>
 			
