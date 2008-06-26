@@ -128,6 +128,19 @@ body, input{
 	font-size:	 	14px;
 	font-weight: 	bold;
 }
+ 
+.codeCell{
+	font-size: 12px;
+	padding-left:4ex;
+	border-width: 2px 0px 0px 0px;
+	border-style: solid;
+}
+th.codeCell{
+	padding:0px;
+	background-color:#ebebeb;
+	border-width: 2px 2px 0px 0px;
+	vertical-align:top;
+}
 
 </style>
 <title>varscoper</title>
