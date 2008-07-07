@@ -4,35 +4,17 @@
 	
 	<target name="init">
 		<property name="varScoperBaseUrl" value="http://localhost/varscoper/varScoper.cfm"/>
-		<property name="filePathToUse" value="testCaseCfc.cfc"/>
+		<property name="filePathToUse" value="varscoperCfc.cfc"/>
 		<property name="recursiveDirectory" value="true" />
 	</target>
 	
-	<target name="runVarScoper">
-		<fail>
-		     <condition>
-		     	<not>
-		       		<http url="${varScoperBaseUrl}?filePath=${filePathToUse}&amp;displayFormat=screen&amp;sendbadstatus=true&amp;recursiveDirectory=${recursiveDirectory}" />
-		     	</not>
-		     </condition>
-		</fail>
-	</target>
-	
-	<target name="define-tasks" depends="init">
-			<taskdef name="conGet" classname="com.varscoper.ant.task.ConditionalGet" classpath="varscoper.jar" />
-	</target>
-	
-	<!-- note: this target should fail when running as default (test case has var scope violations-->
-	<target name="runVarScoperConditionalGet" depends="define-tasks">
+	<target name="runVarScoper" depends="init">
+		<!-- note: this target should fail when running as default (test case has var scope violations-->
 		<tstamp/>
-		<conGet dest=".\${DSTAMP}${TSTAMP}.csv" url="${varScoperBaseUrl}">
-			<parameter name ="filePath" value="${filePathToUse}" />
-			<parameter name="displayFormat" value ="csv" />
-			<parameter name="recursiveDirectory" value = "${recursiveDirectory}" />
-			<!-- <FailIfNotFound pattern="&lt;results&gt;&lt;/results&gt;" />
-			<FailIfFound pattern=".cfc" message="var scope violation is found." />
-			<FailIfFound pattern=".cfm" message="var scope violation is found." /> -->
-		</conGet>
+		
+		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
+		<get dest=".\${DSTAMP}${TSTAMP}.csv" 
+			 src="${varScoperBaseUrl}?displayformat=csv&amp;filePath=${filePathToUse}&amp;recursiveDirectory=${recursiveDirectory}" />
 		
 		<loadfile srcfile=".\${DSTAMP}${TSTAMP}.csv" property="varScoper.cvs">  
 			<filterchain>
@@ -50,7 +32,6 @@
 				<isset property="varScoper.cvs"/>
 			</condition>
 		</fail>
-
 	</target>
 	
 	<target name="build-distro">
