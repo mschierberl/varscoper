@@ -1,4 +1,6 @@
 <cfset currentFileName = scoperFileName />
+<cfparam name="currentFileIteration" default="0">
+<cfset currentFileIteration = currentFileIteration + 1 />
 <cfset scoperResults = varscoper.getResultsArray() />
 
 <script language="javascript">
@@ -44,8 +46,8 @@
 							<strong>
 								<cfoutput>
 									<span style="float:right;">
-										<a href="###scoperIdx#" onclick="toggleCorrectiveCode(#scoperIdx#);">
-											<span style="font-size: 10px;" id="showHide#scoperIdx#">show corrective code</span>
+										<a href="###currentFileIteration#_#scoperIdx#" onclick="toggleCorrectiveCode('#currentFileIteration#_#scoperIdx#');">
+											<span style="font-size: 10px;" id="showHide#currentFileIteration#_#scoperIdx#">show corrective code</span>
 										</a>
 									</span>
 								#htmlEditFormat("<cffunction name='#scoperResults[scoperIdx].functionName#'>")#
@@ -61,7 +63,7 @@
 					
 					<!--- CorrectiveCode Block --->		
 					<cfoutput>
-					<tbody id="correctiveCode#scoperIdx#" style="display:none;">
+					<tbody id="correctiveCode#currentFileIteration#_#scoperIdx#" style="display:none;">
 					<tr>
 						<td colspan="3" align="center" bgcolor="##E2DDB5">Disclaimer: Each function should be inspected individually to determine if the intended scope should be local(var).</td>
 					</tr>
