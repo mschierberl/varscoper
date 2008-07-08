@@ -5,7 +5,21 @@
  --->
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
-		
+
+	<cffunction name="cfscript_comments_problems">
+		<cfscript>
+			/*
+
+			 */
+
+			var row = 1;
+			
+			row = '';
+
+		</cfscript>
+		<cfreturn 0>
+	</cffunction>		
+
 	<cffunction name="cfquery_order_a">
 	
 		<cfset var a = structNew()>
@@ -19,6 +33,7 @@
 		</cfquery>
 		
 	</cffunction>
+
 	
 	<cffunction name="cfquery_order_b">
 	
