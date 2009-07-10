@@ -6,6 +6,23 @@
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 
+	<cffunction name="simpleVarTestCF9">
+		
+		<!--- This return value should be updated when the unit test case changes --->
+		<cfset LOCAL.correctSimpleVar = ""/>
+		
+		<cfset correctSimpleVar ="bar">
+		<CFSET correctSimpleVar2 = "">
+		<cfSet correctSimpleVar3 ="bar">
+		
+		<!--- <cfset WithinComments = "" /> --->
+		<cfset var correctSimpleVar4 = "" />
+		<cfset correctSimpleVar4 = "">
+
+		<cfreturn 3>
+			
+	</cffunction>
+
 	<cffunction name="cfscript_comments_problems">
 		<cfscript>
 			/*
@@ -291,15 +308,6 @@
 		<cfset correctSimpleVar4 = "">
 		<!--- <cfset WithinComments = "" /> --->
 		
-		<!--- <cfscript>
-			thread = createObject("java", "java.lang.Thread");
-			thread.sleep(3000);
-		</cfscript> --->
-		<!--- <cfset result = existingFile.checkIn(context:variables.xythosContext) />
-		<cfscript>
-			thread = createObject("java", "java.lang.Thread");
-			thread.sleep(2000);
-		</cfscript> --->
 		
 		<cfset unscopedSimpleVar ="">
 		<cfset unscoped.var2	="" >
