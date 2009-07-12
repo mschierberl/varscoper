@@ -1,7 +1,6 @@
 <cfset start = getTickCount()/>
 <cfset noErrors=true />
 <cfparam name="ideeventinfo"> 
-
 <cfif not isXML(ideeventinfo)>
 	<cfexit>
 </cfif>
@@ -9,7 +8,7 @@
 <cfset data = xmlParse(ideeventinfo)>
 <cfset resource = data.event.ide.projectview.resource>
 
-<cfset files = []>
+<cfset files = arrayNew(1)>
 <cfif resource.xmlAttributes.type is "file">
 	<cfset arrayAppend(files, resource.xmlAttributes.path)>
 <cfelse>
@@ -27,15 +26,80 @@
   <title>varScoper</title>
 </head>
 <style>
-body,td{
-	font-family: Arial,Helvetica,sans-serif;
-	font-size:90%;
+body, input{
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size:12px;
+	}
+.scoperTable{
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size:	 10px;
+	border-color: #999999;
+	border-width: 2px; 
+	border-style: solid;
 }
+.fileTitle{
+	font-size: 14px;
+	background-color:#4444cc;
+	color: #ffffff;
+}
+.functionCell{
+	font-size: 12px;
+	background-color:#ccddff;
+	border-width: 2px 0px 0px 0px;
+	border-style: solid;
+	border-color: #999999;
+}
+.varNameCell{
+	font-size: 12px;
+	border-width: 2px 2px 0px 0px;
+	background-color:#ebebeb;
+	border-style: solid;
+	border-color: #999999;
+}
+.contextCell{
+	border-width: 2px 0px 0px 0px;
+	border-style: solid;
+	border-color: #999999;
+}
+.summary{
+	font-family: 	verdana, arial, helvetica, sans-serif;
+	font-size:	 	12px;
+	font-weight: 	bold;
+}
+ 
+.codeCell{
+	font-size: 10px;
+	padding-left:4ex;
+	border-width: 2px 0px 0px 0px;
+	border-style: solid;
+	border-color: #999999;
+}
+th.codeCell{
+	padding:0px;
+	background-color:#ebebeb;
+	border-width: 2px 2px 0px 0px;
+	vertical-align:top;
+	border-color: #999999;
+}
+
 </style>
+<script language="javascript">
+	function toggleCorrectiveCode(idx){
+		if (document.getElementById('correctiveCode'+idx).style.display == 'none'){
+			document.getElementById('correctiveCode'+idx).style.display='';
+			document.getElementById('showHide'+idx).innerHTML = 'hide corrective code';	
+		}else{
+			document.getElementById('correctiveCode'+idx).style.display='none';
+			document.getElementById('showHide'+idx).innerHTML = 'show corrective code';
+		}
+	}
+</script>
 <body>
-<cfloop index="f" array="#files#">
+<cfset currentFileIteration = 0>
+<cfloop index="fileIdx" array="#files#">
+	<cfset currentFileIteration++ />
 	<cftry>
-		<cfset fileParseText = fileRead(f)>
+		<cfset fileParseText = fileRead(fileIdx)>
 		<cfcatch>
 			<cfset fileParseText = "">
 		</cfcatch>
@@ -54,30 +118,87 @@ body,td{
 		<cfinvoke component="varScoper" method="init" argumentcollection="#varscoperArgs#" returnvariable="varscoper">
 		
 		<cfset varscoper.runVarscoper() />
-		<cfset res = varscoper.getResultsArray() />
-		<cfif arrayLen(res)>
+		<cfset scoperResults = varscoper.getResultsArray() />
+		
+		<cfset totalUnscopedVariables = 0 />
+		<cfloop from="1" to="#arrayLen(scoperResults)#" index="idx">
+			<cfset totalUnscopedVariables = totalUnscopedVariables + arrayLen(scoperResults[idx].unscopedArray) />
+		</cfloop>
+		
+		<cfif arrayLen(scoperResults)>
 			<cfset noErrors=false/>
-			<cfoutput>
-			<table border="1" width="100%">
-				<tr>
-					<th colspan="3" style="background-color:##89ceff;text-align:left">
-					#arrayLen(res)# unscoped variables in #f#
-					</th>
-				</tr>
-				<cfloop index="item" array="#res#">
+			
+			<table border="0" cellpadding="2" cellspacing="0" width="100%" class="scoperTable">
+			<tr>
+				<td class="fileTitle" colspan="4">
+					<cfoutput>#fileIdx#</cfoutput>
+				</td>
+			</tr>
+			
+			<cfset allLines = "" >			
+			<cfloop from="1" to="#arrayLen(scoperResults)#" index="scoperIdx">
+				<cfset tempUnscopedArray = scoperResults[scoperIdx].unscopedArray />
+				<cfif NOT ArrayIsEmpty(tempUnscopedArray)>
 					<tr>
-						<th colspan="3" style="background-color:##aabbff;text-align:left">&lt;cffunction name="#item.functionname#"&gt; (Line: #item.linenumber#)</td>
+						<td colspan="3" class="functionCell" >
+							<strong>
+								<cfoutput>
+									<span style="float:right;">
+										<a href="###currentFileIteration#_#scoperIdx#" onclick="toggleCorrectiveCode('#currentFileIteration#_#scoperIdx#');">
+											<span style="font-size: 10px;" id="showHide#currentFileIteration#_#scoperIdx#">show corrective code</span>
+										</a>
+									</span>
+								<!---#htmlEditFormat("<cffunction name='#scoperResults[scoperIdx].functionName#'>")#--->
+									#scoperResults[scoperIdx].functionName#
+								</cfoutput>
+							</strong>
+						</td>
+					</tr>	
+					
+					<!--- CorrectiveCode Block --->		
+					<cfoutput>
+					<tbody id="correctiveCode#currentFileIteration#_#scoperIdx#" style="display:none;">
+					<tr>
+						<td colspan="3" align="center" bgcolor="##E2DDB5">Disclaimer: Each function should be inspected individually to determine if the intended scope should be local(var).</td>
 					</tr>
-					<cfloop index="line" array="#item.unscopedArray#">
-						<tr>
-							<td>#line.variablename#</td>
-							<td>#line.linenumber#</td>
-							<td>#line.variablecontext#</td>
-						</tr>
-					</cfloop>
-				</cfloop>
-			</table>
-			</cfoutput>	
+					<tr>
+						<th class="codeCell" colspan="2" align="right">Corrective Code:</th>
+						<td class="codeCell" bgcolor="##E2DDB5">
+						<cfloop from="1" to="#arrayLen(tempUnscopedArray)#" index="unscopedIdx">
+								<cfif structKeyExists(tempUnscopedArray[unscopedIdx],"LineNumber") AND tempUnscopedArray[unscopedIdx].LineNumber NEQ 1>
+									<cfoutput>#htmlEditFormat("<cfset var " & trim(tempUnscopedArray[unscopedIdx].VariableName) & "	= '' />")#<br></cfoutput> 
+								</cfif>
+						</cfloop>
+						</td>
+					</tr>
+					</tbody>
+					</cfoutput>
+						<cfloop from="1" to="#arrayLen(tempUnscopedArray)#" index="unscopedIdx">
+							<cfoutput>
+							<tr>
+							</cfoutput>
+								<td class="varNameCell" align="right"><cfoutput>#tempUnscopedArray[unscopedIdx].VariableName#</cfoutput></td>
+								<cfif structKeyExists(tempUnscopedArray[unscopedIdx],"LineNumber") AND tempUnscopedArray[unscopedIdx].LineNumber NEQ 1>
+								<cfset currLine = tempUnscopedArray[unscopedIdx].LineNumber >
+								<td class="varNameCell" align="right" nowrap>
+									<cfoutput>line: #tempUnscopedArray[unscopedIdx].LineNumber#</cfoutput>
+									<cfset allLines = listAppend(allLines, currLine) >
+								</td>
+								</cfif>
+								<td class="contextCell" ><cfoutput>#htmlEditFormat(left(tempUnscopedArray[unscopedIdx].VariableContext,100))#</cfoutput></td>
+							</tr>
+						</cfloop>
+						
+						
+				</cfif>
+			</cfloop>
+		
+		</table><br><br>
+
+		
+		<!---<cfoutput>#replaceNoCase(varScoperDetails, "${allLines}", allLines, "ALL")#</cfoutput>
+		--->	
+
 		</cfif>
 	</cfif>
 	
