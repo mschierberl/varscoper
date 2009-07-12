@@ -1,5 +1,4 @@
-<!--- 
-	varscoper.cfc
+<!--- 	varscoper.cfc
 	
 	This cfc takes a string argument and parses the string looking for any unscoped variables within a cffunction
 	
@@ -50,6 +49,8 @@
 	<cfset variables.parseCFscript				= false />
 	
 	<cfset variables.tagTypes					= arrayNew(1) />
+	<cfset variables.cf9						= "true" />
+	<cfset variables.allFunctionsScanned		= arrayNew(1) />
 	
 	<!--- Identify all tags that should be checked here... --->
 	<!--- These are key value pairs where the value is the parameter of the tag used to create a variable --->
@@ -95,8 +96,9 @@
 	<cfset arrayAppend(variables.tagTypes,"cfxml:variable")>
 	<cfset arrayAppend(variables.tagTypes,"cfzip:name")>
 	<cfset arrayAppend(variables.tagTypes,"cfldap:name")>
+
 	
-	<cffunction name="init" access="public" output="false" returntype="varscoper" 
+	<cffunction name="init" access="public" output="false" 
 		hint="I initialize an instance of the var scoper component which is used to find unscoped vars" >
 		<cfargument name="fileParseText" required="true" type="string" 
 			hint="I am the string representing the code within a cfc that needs to be parsed" />
@@ -174,6 +176,7 @@
 					<!--- Remove all equals, single and double quotes to isolate the variable created --->
 					<cfset functionName = ReReplaceNoCase(functionName,'["''=]',"","all")>
 			
+					<cfset arrayAppend(variables.allFunctionsScanned,functionName) />
 					<cfset variables.currentFunctionName = functionName />
 					<cfset tempCurrentFunctionStruct = structNew() />
 					<cfset tempCurrentFunctionStruct.functionName = functionName />
@@ -338,8 +341,20 @@
 			<cfset returnStruct.endVarLine = currentPositionVariableFind>
 		</cfif>
 		
+		<!---TODO: if CF9 also look for "LOCAL" scoped variables in cfsets and cfscript
+		<cfif ColdFusion9>
+		
+		</cfif>--->
+		
+
+		
+		<!---TODO: endVarLine is no longer valid as vars can appear anywhere in CF9 --->
 		<cfset returnStruct.endVarLine = currentPositionVarFind>		
 		<cfset returnStruct.variableNames = tempVaredStruct />
+
+		<cfif variables.cf9>
+		
+		</cfif>
 		
 		<cfreturn returnStruct>
 	</cffunction>
@@ -763,6 +778,11 @@
 	<cffunction name="getResultsArray" access="public" output="false" returntype="array"
 		hint="I am an ordered array of all the results that were found">
 		<cfreturn variables.OrderedUnVarArray />
+	</cffunction>
+	
+	<cffunction name="getAllFunctionsScanned" access="public" output="false" returntype="Array"
+		hint="Returns an array of all functions that were processed">
+		<cfreturn variables.allFunctionsScanned />	
 	</cffunction>
 	
 </cfcomponent>
