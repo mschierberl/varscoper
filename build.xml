@@ -38,7 +38,17 @@
 		<input message="zip filename (don't include .zip)"
 			addproperty="zipFileName" />
 		<zip destfile="${zipFileName}.zip">
-			<zipfileset dir="." includes="*.*" excludes=".project,*.zip" prefix="varscoper"/>
+			<zipfileset dir="." includes="*.*" excludes=".project,*.zip,ide_config.xml" prefix="varscoper"/>
+			<zipfileset dir="." includes="ide_config.xml" />
+		</zip>
+	</target>
+	
+	<target name="cfBuilder-distro">
+		<input message="zip filename (don't include .zip)"
+			addproperty="zipFileName" />
+		<zip destfile="${zipFileName}.zip">
+			<zipfileset dir="." includes="*.*" excludes="handlers,install,.project,*.zip,ide_config.xml" prefix="varscoper"/>
+			<zipfileset dir="." includes="ide_config.xml,handlers/*.*,install/*.*" />
 		</zip>
 	</target>
 	
