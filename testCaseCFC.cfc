@@ -3,11 +3,14 @@
 
 
  --->
-<cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
+<cfcomponent hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
 	<cffunction name="issue_25" hint="(<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=011F3BEB-BD54-462E-CA2B0E99C88BFA86' target='_new'>issue 25</a>)">
-		<cfset var local = {searchterm="blah",counter=1} />
+		<cfset var local = structNew() />
+		<cfset local.searchterm = "foo" />
+		<cfset local.counter = "1" />
+
 		<cfscript>
 	      //init fields
 	      local.fieldcount = 0;
@@ -34,8 +37,11 @@
 
 	<cffunction name="issue_27" access="public" hint="check to make sure username and name can both be used in cfftp">
 	   <cfset var ftpName = "" /> 
-	   
+	   <cftry>
 	   <cfftp username="notBadVar" name="ftpName" password="password" action="open" server="localhost"  stoponerror="false" >
+	   <cfcatch>
+	   </cfcatch>
+	   </cftry>
 	   <cfreturn 0 />
 	</cffunction>
 
@@ -147,18 +153,6 @@
 		</cfquery>
 	</cffunction>
 
-	<cffunction name="setStaticFields"  >
-		<cfscript>
-			
-			var counter = 1;
-			
-			return 0;
-			for(; counter <= len; counter++)
-			{
-			 
-			}
-		</cfscript>
-	</cffunction>
 
 	<cffunction name="cfftp_variables">
 		<cfset var scopedFtp = "">
@@ -193,7 +187,7 @@
 	
 	<cffunction name="issue_17">
 		<cfreturn 0>
-		<cfloop condition="">
+		<cfloop condition="1 EQ 0">
 		
 		</cfloop>
 	</cffunction>
@@ -592,7 +586,6 @@
 			
 			for (correctLoop = someFunction();correctLoop LTE 10; correctLoop = correctLoop+1) ;
 			
-			for(; counter <= 10; counter++);
 			
 			unscopedStruct.test = ""
 			;
