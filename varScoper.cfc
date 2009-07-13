@@ -163,13 +163,13 @@
 					<cfset functionTagRE = ReFindNoCase("<cffunction(.*?)\>",fileParseText,currentPositionInFile,true)>
 	
 					<cfif findNoCase("name",mid(fileParseText,functionTagRE.POS[1],functionTagRE.LEN[1])) GT 0>
-						<cfset functionNameRE = ReFindNoCase('name(\s?)+\=(\s?)["''][^"\r\n]*["'']',fileParseText,functionTagRE.POS[1],true) / >
+						<cfset functionNameRE = ReFindNoCase('name(\s?)+\=(\s?)["''][^"\r\n]*["'']',fileParseText,functionTagRE.POS[1],true) />
 					<cfelse>
 						<cfthrow type="functionWithoutName">
 					</cfif>
 	
 					<!--- Isolate the FunctionName for reference in the global struct --->
-					<cfset functionNameRE = ReFindNoCase('name(\s?)+\=(\s?)["''][^"\r\n]*["'']',fileParseText,functionTagRE.POS[1],true) / >
+					<cfset functionNameRE = ReFindNoCase('name(\s?)+\=(\s?)["''][^"\r\n]*["'']',fileParseText,functionTagRE.POS[1],true) />
 					<cfset functionName = mid(fileParseText,functionNameRE.POS[1],functionNameRE.LEN[1]) />
 					<!--- Remove the variable name --->
 					<cfset functionName = replaceNoCase(functionName,"name","")>
@@ -513,7 +513,7 @@
 						<!--- Use a RE to find instance of the variable name statement --->
 						<!--- This will find the variable name, then a value following the equals sign enclosed in single or double quotes --->
 											
-						<cfset findVariableRE = ReFindNoCase('(\s)#arguments.variableName#(\s?)\=(\s?)*(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) / >
+						<cfset findVariableRE = ReFindNoCase('(\s)#arguments.variableName#(\s?)\=(\s?)*(["'']?)[^"^''\r\n\s]*(["'']?)',tagIsolationString,1,true) />
 						
 						<!--- Flow
 							1. Check to see if the tag:variable (attributes 1 & 2 within tagTypes array) attributes was found
