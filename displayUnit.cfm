@@ -35,8 +35,8 @@ NOTE: If a false positive and negative case are contained in the same function i
 </cfloop>
 
 
-<cfset badTestsHTML = [] />
-<cfset goodTestsHTML = [] />
+<cfset badTestsHTML = arrayNew(1) />
+<cfset goodTestsHTML = arrayNew(1) />
 <table border="0" cellpadding="4" cellspacing="0" width="100%" class="scoperTable">
 		<tr>
 			<td class="fileTitle" colspan="5" nowrap>
