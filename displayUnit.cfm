@@ -27,6 +27,13 @@ NOTE: If a false positive and negative case are contained in the same function i
 </cfloop>
 
 <cfset objMetadata = getMetadata(unitTestObject).functions>
+<cfset hintStruct = structNew() />
+<cfloop array="#objMetadata#" index="hintdx">
+	<cfif structKeyExists(hintdx,"hint")>
+		<cfset hintStruct["#hintdx.name#"] = hintdx.hint />
+	</cfif>
+</cfloop>
+
 
 <cfset badTestsHTML = [] />
 <cfset goodTestsHTML = [] />
@@ -57,7 +64,7 @@ NOTE: If a false positive and negative case are contained in the same function i
 
 			<td nowrap  class="functionCell" >
 				<cfif found GT scopedCount>
-				 	<span style="font-weight:bold;color:#ff8000;">FAIL - false positives</span>
+				 	<span style="font-weight:bold;color:#ff8000;">FAIL</span>
 				<cfelseif found LT scopedCount>
 					<span style="font-weight:bold;color:#c03000;">FAIL</span>
 				<cfelse>
@@ -71,7 +78,12 @@ NOTE: If a false positive and negative case are contained in the same function i
 				<cfelse>&nbsp;
 				</cfif>
 			</td>
-			<td width="99%" class="functionCell">&nbsp;</td>
+			<td width="99%" class="smallfunctionCell">
+			<cfif structKeyExists(hintStruct,currentFunction)>
+			<cfoutput>#hintStruct[currentFunction]#</cfoutput>
+			<cfelse>&nbsp;
+			</cfif>
+			</td>
 		</tr>	
 	</cfsavecontent>
 	<cfif passFunction>
