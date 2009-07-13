@@ -5,8 +5,51 @@
  --->
 <cfcomponent name="testCaseCFC" hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
+	
+	<cffunction name="issue_25" hint="(<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=011F3BEB-BD54-462E-CA2B0E99C88BFA86' target='_new'>issue 25</a>)">
+		<cfset var local = {searchterm="blah",counter=1} />
+		<cfscript>
+	      //init fields
+	      local.fieldcount = 0;
+	      local.searchstring = "";
+	      local.startBracketCount = 0;
+	      local.endBracketCount = 0;
+			searchportion = Find('"', Mid(local.searchTerm, local.counter, Len(local.searchTerm))) - 1;
+			
+		</cfscript>
+		<cfreturn 1>
+	</cffunction>
+	
+	<cffunction name="cfthread_not_ok" access="public" 
+		hint="This will fail if thread scope is ignored, but there is another unscoped variable named thread (<a target='_new' href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=D7C2874C-AA93-FE66-5B1B25C48568EB4C'>issue 24</a>)" >
+		<cfset thread.foo = "">
+		<cfreturn 1 />	
+	</cffunction>
+	<cffunction name="cfthread_ok" access="public" hint="thread is an ok scope if it's within a cfthread tag (<a target='_new' href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=D7C2874C-AA93-FE66-5B1B25C48568EB4C'>issue 24</a>)" >
+		<cfthread name="foo">
+			<cfset thread.foo = "">
+		</cfthread>
+		<cfreturn 0 />	
+	</cffunction>
 
-	<cffunction name="simpleVarTestCF9">
+	<cffunction name="issue_27" access="public" hint="check to make sure username and name can both be used in cfftp">
+	   <cfset var ftpName = "" /> 
+	   
+	   <cfftp username="notBadVar" name="ftpName" password="password" action="open" server="localhost"  stoponerror="false" >
+	   <cfreturn 0 />
+	</cffunction>
+
+	<cffunction name="issue_28" access="public" hint="Mix cfscript with tag cfset gives false positive">
+	   <cfscript>
+	      var myvar = "";
+	   </cfscript>
+	   
+	   <cfset myvar = "myvalue" />
+	   <cfreturn 0 />
+	</cffunction>
+	
+	
+	<cffunction name="simpleVarTestCF9" hint="support for LOCAL scope in CF9, ability to set var anywhere in function (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=07CA8A2F-C453-C7C1-D8778CDDED8E85C1' target='_new'>enhancement 29</a>)">
 		
 		<!--- This return value should be updated when the unit test case changes --->
 		<cfset LOCAL.correctSimpleVar = ""/>
@@ -18,12 +61,41 @@
 		<!--- <cfset WithinComments = "" /> --->
 		<cfset var correctSimpleVar4 = "" />
 		<cfset correctSimpleVar4 = "">
-
+	
 		<cfreturn 3>
 			
 	</cffunction>
+	
+	<cffunction name="issue_22">
+	      
+		<cfargument name="ChartData" type="any" />
+		<cfset var local=structnew() />
+		    <cfreturn 0>
+		<cfsilent>
+			<cfscript>
+				local.DefaultFormat = variables.chartConfig.getChartFormat(); // can be: flash, png, jpg
+				local.MaxCategories = variables.chartConfig.getMaxCategories(); // maximum number of x-axis categories
+				local.Format=variables.chartConfig.getChartFormat( arguments.ChartData.format );
+				local.SeriesPlacement = variables.ChartConfig.getSeriesPlacement(); // can be: cluster, stacked, percent
+				local.ChartWidth = variables.chartConfig.getChartWidth(); // integer width in px
+				local.ChartHeight = variables.chartConfig.getChartHeight(); // integer height in px
+				local.SeriesArray = arguments.ChartData.SeriesArray;
+				local.ScaleFrom = arguments.ChartData.ScaleFrom; // numerical value or empty string for auto scaling
+				local.ScaleTo = arguments.ChartData.ScaleTo; // numerical value or empty string for auto scaling
+				local.ChartStyleType=arguments.ChartData.chartStyleType;
+				local.showLegend=arguments.ChartData.showLegend;
+				local.LabelFormat=arguments.ChartData.LabelFormat;
+				local.ChartStyle=arguments.ChartData.ChartStyle;
+				local.SortXAxis=arguments.ChartData.SortXAxis;
+				if( fileExists( expandPath(variables.chartConfig.getDefaultChartStylePath() & local.ChartStyle ) ) IS false){
+				local.ChartStyle = variables.chartConfig.getDefaultChartStyle();
+				}
+			</cfscript>
+		</cfsilent>
+	   <cfreturn 0 />
+   </cffunction> 
 
-	<cffunction name="cfscript_comments_problems">
+	<cffunction name="cfscript_comments_problems" hint="has a problem processing /* */">
 		<cfscript>
 			/*
 
@@ -203,7 +275,7 @@
 		
 	</cffunction>
 	
-	<cffunction name="falsePositive_comments">
+	<cffunction name="falsePositive_comments" hint="returns a false positive when commented code has an unscoped variable">
 		<cfreturn 0>
 		<!--- <cfset withinComments = ""> --->
 	</cffunction>
@@ -218,7 +290,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="cfscript_nested_square_brackets_with_operation" access="public" hint="Quite unusual but has been seen on wild.">
+	<cffunction name="nested_brackets" access="public" hint="Quite unusual but has been seen on wild. aScopedArray1[aScopedArray2[1] + 1]">
 		<cfscript>
 			var aScopedArray1 = arrayNew(1);
 			var aScopedArray2 = arrayNew(1);
@@ -232,7 +304,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="cfscript_semicolon_within_quoted_string" access="public" hint="This can easily happen when building URL parameters">
+	<cffunction name="semicolon_in_string" access="public" hint="Semicolon appears within a quoted string - sScoped = &quot;&amp;quotedString=value&quot;;">
 		<cfscript>
 			var sScoped = "";
 			return 0;
@@ -306,8 +378,6 @@
 		<CFSET correctSimpleVar2 = "">
 		<cfSet correctSimpleVar3 ="bar">
 		<cfset correctSimpleVar4 = "">
-		<!--- <cfset WithinComments = "" /> --->
-		
 		
 		<cfset unscopedSimpleVar ="">
 		<cfset unscoped.var2	="" >
