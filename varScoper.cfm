@@ -141,7 +141,13 @@ th.codeCell{
 	border-width: 2px 2px 0px 0px;
 	vertical-align:top;
 }
-
+.smallFunctionCell{
+	font-size: 10px;
+	background-color:#ccddff;
+	color:#999999;
+	border-width: 2px 0px 0px 0px;
+	border-style: solid;
+}
 </style>
 <title>varscoper</title>
 </head>
