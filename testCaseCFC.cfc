@@ -6,6 +6,31 @@
 <cfcomponent hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
+	<cffunction name="issue_30" hint="500 error only in Open BD (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=5599A48F-E8BF-9CE6-EACFB8EBAA9EAFAD' target='_new'>issue 30</a>)">
+		<cfset var blah = ""/>
+		<cfreturn 0>
+		<cfprocparam cfsqltype ="CF_SQL_BIT" variable="blah" type="out" />
+	</cffunction>
+
+	<cffunction name="issue_26" hint="this throws a 500 error, but only in open BD">
+		<cfargument name="pattern" required="false" default="foo"/>
+		<cfargument name="text" required="false" default="foo"/>
+		<cfset var partIndex = -1 />
+		<cfset var nextAsteriskLoc = 0/>
+		<cfset var part = "" />
+ 		<cfloop condition="partIndex NEQ -1">
+            <cfif doMatch(arguments.pattern.substring(nextAsteriskLoc), arguments.text.substring(partIndex + part.length()))>
+               <cfreturn true />
+            </cfif>
+            
+            <cfset partIndex = arguments.text.indexOf(part, partIndex + 1) />
+         </cfloop>
+     	<cfreturn 0 />
+	</cffunction>
+	<cffunction name="doMatch" hint="this is a helper function for issue_26">
+		<cfreturn 0>
+	</cffunction>
+	
 	<cffunction name="issue_25" hint="(<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=011F3BEB-BD54-462E-CA2B0E99C88BFA86' target='_new'>issue 25</a>)">
 		<cfset var local = structNew() />
 		<cfset local.searchterm = "foo" />
