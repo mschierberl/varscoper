@@ -4,7 +4,7 @@
 	
 	<target name="init">
 		<property name="varScoperBaseUrl" value="http://localhost/varscoper/varScoper.cfm"/>
-		<property name="filePathToUse" value="varscoperCfc.cfc"/>
+		<property name="filePathToUse" value="varScoper.cfc"/>
 		<property name="recursiveDirectory" value="true" />
 	</target>
 	
@@ -13,23 +13,23 @@
 		<tstamp/>
 		
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
-		<get dest=".\${DSTAMP}${TSTAMP}.csv" 
+		<get dest="./${DSTAMP}${TSTAMP}.csv" 
 			 src="${varScoperBaseUrl}?displayformat=csv&amp;filePath=${filePathToUse}&amp;recursiveDirectory=${recursiveDirectory}" />
 		
-		<loadfile srcfile=".\${DSTAMP}${TSTAMP}.csv" property="varScoper.cvs">  
+		<loadfile srcfile="./${DSTAMP}${TSTAMP}.csv" property="varScoper.csv">  
 			<filterchain>
 				<headfilter skip="1"/>
 				<trim/>
 			</filterchain>
 		</loadfile>
 		  
-		<echo>${varScoper.cvs}</echo>
+		<echo>${varScoper.csv}</echo>
 		
-		<delete file=".\${DSTAMP}${TSTAMP}.csv"/>
+		<delete file="./${DSTAMP}${TSTAMP}.csv"/>
 		
 		<fail message="var scope violation is found.">
 			<condition>
-				<isset property="varScoper.cvs"/>
+				<isset property="varScoper.csv"/>
 			</condition>
 		</fail>
 	</target>
