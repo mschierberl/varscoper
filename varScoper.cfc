@@ -739,16 +739,19 @@
 		<!--- <cfset text = text.ReplaceAll("(<\s?cfscript\b[^>]*>|</\s?cfscript\s?>)","")> --->
 		
 		<!--- strip comments --->
-		<cfset text = text.ReplaceAll("//(.*?)(?<!\)\;)\r","") />
+		<cfset text = text.ReplaceAll("//(.*?)(?<!\)\;)#chr(13)#?#chr(10)#","") />
 						
 		<!--- strip out /* type comments */ --->
 		<cfset text = text.ReplaceAll("(?<!/)[^\r\n\s](?=[^/*]*\*/\s)","") />
+		<!--- regex above strips between comments, but doesn't erase them --->
+		<cfset text = replace(text,"/*","","all") />
+		<cfset text = replace(text,"*/","","all") />
 		
 		<!--- strip out if statements ($custom change:hkl)
 					quick and dirty, used for cases like
 						if() x = y;
 				 --->		
-		<cfset text = REReplaceNoCase(text,"if[ ]*\(+(.*?)\)+[\s\{]*?[\r\n]","","all")>
+		<cfset text = REReplaceNoCase(text,"if[ ]*\(+(.*?)\)+[\s\{]*?[#chr(13)#?#chr(10)#]","","all")>
 
 		<!--- Strip out for loops at start of statement, this is needed after Harry's fixes: ms --->
 		<cfset text = text.ReplaceAll("for\s?\(","")>
