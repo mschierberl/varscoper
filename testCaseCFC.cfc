@@ -6,6 +6,20 @@
 <cfcomponent hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
+	<cffunction name="cfdocument" access="remote" output="true" returntype="any">
+		<cfargument name="lockname" default="foo" />
+
+		<cfset var scoped = '' />
+		<cfreturn 0/>
+		<cfdocument filename="#ExpandPath('.')#\#arguments.lockName#.pdf" format="PDF">
+			Test case for var scoper
+		</cfdocument>
+		
+		<cfdocument name="scoped" fileName='unscoped' format="PDF" />
+		<cfdocument  fileName="unscoped" name='scoped' format="PDF" />
+		
+	</cffunction>
+
 	<cffunction name="issue_30" hint="500 error only in Open BD (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=5599A48F-E8BF-9CE6-EACFB8EBAA9EAFAD' target='_new'>issue 30</a>)">
 		<cfset var blah = ""/>
 		<cfreturn 0>
@@ -126,19 +140,58 @@
 	   <cfreturn 0 />
    </cffunction> 
 
-	<cffunction name="cfscript_comments_problems" hint="has a problem processing /* */">
+	<cffunction name="cfscript_comments" access="public" hint="MINOR: This is an example where it returns false positives in comments in cfscript">
 		<cfscript>
-			/*
+			var correctSimpleVar5 = ""; //comments after var
 
+			// var withinComments = "";
+			/* var withincomments2 = ""; */
+			/*  
+				var withincomments3 = ""; /*
 			 */
 
+		</cfscript>
+		
+		<cfreturn 3>
+		
+		<cfscript>
+			withinComments = "foo";
+			withinComments2 = "foo";
+			withinComments3 = "foo";
+		</cfscript>
+	</cffunction>	
+
+	<cffunction name="cfscript_comments_problems" hint="has a problem processing /* */">
+		<cfscript>
+			/* 
+			
+			*/ 
+			
 			var row = 1;
 			
 			row = '';
 
 		</cfscript>
 		<cfreturn 0>
-	</cffunction>		
+	</cffunction>	
+	<cffunction name="cfscript_nested_comments" hint="has a problem processing /* */">
+		<cfscript>
+			/*
+			 
+			/*
+			*/ 
+			
+			var row = 1;
+			
+						/*
+			 unscoped = '';
+			/*
+			*/ 
+			row = '';
+
+		</cfscript>
+		<cfreturn 1>
+	</cffunction>
 
 	<cffunction name="cfquery_order_a">
 	
@@ -294,7 +347,7 @@
 		
 	</cffunction>
 	
-	<cffunction name="falsePositive_comments" hint="returns a false positive when commented code has an unscoped variable">
+	<cffunction name="falsePositive_comments" hint="MINOR: returns a false positive when commented code has an unscoped variable">
 		<cfreturn 0>
 		<!--- <cfset withinComments = ""> --->
 	</cffunction>
@@ -709,25 +762,6 @@
         </cfscript>
 	</cffunction>
 
-	<cffunction name="cfscript_comments" access="public" >
-		<cfscript>
-			var correctSimpleVar5 = ""; //comments after var
 
-			// var withinComments = "";
-			/* var withincomments2 = ""; */
-			/*  
-				var withincomments3 = ""; /*
-			 */
-
-		</cfscript>
-		
-		<cfreturn 3>
-		
-		<cfscript>
-			withinComments = "foo";
-			withinComments2 = "foo";
-			withinComments3 = "foo";
-		</cfscript>
-	</cffunction>
 	
 </cfcomponent>
