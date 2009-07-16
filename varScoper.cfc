@@ -52,6 +52,10 @@
 	<cfset variables.cf9						= "true" />
 	<cfset variables.allFunctionsScanned		= arrayNew(1) />
 	
+	<cfif variables.cf9>
+		<cfset variables.ignoredScopes = listAppend(variables.ignoredScopes,"local") />
+	</cfif>
+	
 	<!--- Identify all tags that should be checked here... --->
 	<!--- These are key value pairs where the value is the parameter of the tag used to create a variable --->
 	<!--- attributes defs
@@ -249,7 +253,7 @@
 				hint="I process a string (generally a block within a function) and return a struct of variables set with var statements">
 		<cfargument name="stringToProcess" required="false" type="string">
 		
-		<cfset var RegExCFsetVar				= '<cfset+[\s]+var+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?)\>' />
+		<cfset var RegExCFsetVar				= '<cfset+[\s]+var+([\s])+[a-zA-Z0-9_\[\"\''\]\##\.\s]+\=(.*?)\>' />
 		<cfset var currentPositionVarFind = 1 />
 		<cfset var returnStruct = structNew() />
 		<cfset var varVariableName = "" />
@@ -343,9 +347,9 @@
 		
 		<!---TODO: if CF9 also look for "LOCAL" scoped variables in cfsets and cfscript
 		<cfif ColdFusion9>
-		
-		</cfif>--->
-		
+			
+		</cfif>
+		--->
 
 		
 		<!---TODO: endVarLine is no longer valid as vars can appear anywhere in CF9 --->
@@ -353,7 +357,7 @@
 		<cfset returnStruct.variableNames = tempVaredStruct />
 
 		<cfif variables.cf9>
-		
+			<cfset returnStruct.endVarLine = 1 />
 		</cfif>
 		
 		<cfreturn returnStruct>
@@ -391,6 +395,11 @@
 				
 				<!--- string leading and trailing quotes and pounds --->
 				<cfset VariableNameCfsetIsolate = stripLeadingAndTrailingQuotesAndPoundsFromVariableName(VariableNameCfsetIsolate) />
+				
+				<!--- TODO: this is a bit of a hack to account for vars appearing anywhere in the function in CF9 --->
+				<cfif variables.cf9 AND refindNoCase("var+[\s]",VariableNameCfsetIsolate)>
+					<cfset VariableNameCfsetIsolate = ReReplaceNoCase(VariableNameCfsetIsolate,"var+[\s]","") />
+				</cfif>
 				
 				<!--- if the variable a good variable name? --->
 				<cfif isGoodVariableName(VariableNameCfsetIsolate)>
@@ -740,12 +749,14 @@
 		
 		<!--- strip comments --->
 		<cfset text = text.ReplaceAll("//(.*?)(?<!\)\;)#chr(13)#?#chr(10)#","") />
-						
+		
+		<!--- This is a rockstar regex --->
+		<cfset text = rereplaceNoCase(text,'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)','','all')/> 		
 		<!--- strip out /* type comments */ --->
-		<cfset text = text.ReplaceAll("(?<!/)[^\r\n\s](?=[^/*]*\*/\s)","") />
+		<!---<cfset text = text.ReplaceAll("(?<!/)[^\r\n\s](?=[^/*]*\*/\s)","") />
 		<!--- regex above strips between comments, but doesn't erase them --->
 		<cfset text = replace(text,"/*","","all") />
-		<cfset text = replace(text,"*/","","all") />
+		<cfset text = replace(text,"*/","","all") />--->
 		
 		<!--- strip out if statements ($custom change:hkl)
 					quick and dirty, used for cases like
