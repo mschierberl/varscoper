@@ -6,6 +6,96 @@
 <cfcomponent hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
+	<cffunction name="exportResults" access="remote" output="true" returntype="any">
+		<cfargument name="lockname" default="foo" />
+
+		<cfreturn 0>
+		<cfdocument filename="#ExpandPath('.')#\#arguments.lockName#.pdf" format="PDF">
+		Test case for var scoper
+		</cfdocument>
+
+	</cffunction>
+	
+	<cffunction name="varNoSpace" hint="var statements with CR or tabs">
+		<cfset var	AccountWhereClause = "" />
+		<cfset var
+another = "" />
+		<cfreturn 0 />
+	</cffunction>
+	<cffunction name="farcry_script" hint="colon in struct key - discovered in farcry farcry/core/packages/farcry/rss.cfc parseRssDate()">
+		<cfreturn 0>
+		<cfset var stItem = structNew() />
+		<cfscript>
+			stItem['dc:date'] = "";
+		</cfscript>
+
+	</cffunction>
+
+	 
+	<cffunction name="another_farcry" hint="discovered in farcry/core/packages/farcry/stats.cfc getUserOs()">
+		<cfscript>
+			return 0;
+				var user_agent = '';
+	 			var os = "Mac";
+	 			if (findNoCase("68",user_agent))
+	 				os = os & " 68k";
+	 			else if	(findNoCase("os x",user_agent))
+	 				os = os & " OSX";
+	 			else if	(findNoCase("ppc",user_agent))	
+	 				os = os & " PPC";
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="farcry_sql" hint="discovered this in farcry alterType.cfc addProperty()">
+	
+		<cfargument name="typename" required="true" default="foo">
+		<cfargument name="srcColumn" required="true"  default="foo">
+		<cfargument name="srcColumnType" required="true" default="foo">
+		<cfargument name="bNull" required="false" default="true">
+		<cfargument name="stDefault" required="false" default="">
+		<cfargument name="dsn" default="foo" required="false">
+		<cfargument name="dbtype" default="mssql" required="false">
+	
+		<cfset var sql = "" />
+		<cfreturn 0 />
+		<cfscript>
+		switch(arguments.dbtype){
+			case "postgresql":
+			{
+				if (Len(arguments.stDefault)) sql = sql & "; ALTER TABLE #application.dbowner##arguments.typename# ALTER COLUMN #arguments.srcColumn# set default '#stDefault#'; UPDATE #application.dbowner##arguments.typename# SET #arguments.srcColumn# = '#stDefault#'";
+				break;
+			}
+			case "mysql":
+			{
+				if (arguments.bNull) sql = sql & "NULL";
+	
+				else sql = sql & "NOT NULL";
+				
+				if (Len(arguments.stDefault) OR NOT arguments.bNull) sql = sql & " DEFAULT '#stDefault#'";
+				break;
+			}
+		}
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="listDiff" hint="discovered this in mangoBlog appears to be caused by the * before Compares ">
+		<cfargument name="list1" default="foo">
+		<cfargument name="list2" default="bar">
+		<cfreturn 0 />
+		
+		<cfscript>
+		/**
+		* Compares two lists and returns the elements that do not appear in both lists.
+		*/
+		
+		var delimiters    = ",";
+
+		delimiters = arguments[3];
+		
+		</cfscript>
+	</cffunction>
+	
+	
 	<cffunction name="cfdocument" access="remote" output="true" returntype="any">
 		<cfargument name="lockname" default="foo" />
 
@@ -94,22 +184,52 @@
 	</cffunction>
 	
 	
-	<cffunction name="simpleVarTestCF9" hint="support for LOCAL scope in CF9, ability to set var anywhere in function (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=07CA8A2F-C453-C7C1-D8778CDDED8E85C1' target='_new'>enhancement 29</a>)">
+	<cffunction name="simpleVarTestCF9" hint="ability to set var anywhere in function in CF9 (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=07CA8A2F-C453-C7C1-D8778CDDED8E85C1' target='_new'>enhancement 29</a>)">
 		
-		<!--- This return value should be updated when the unit test case changes --->
-		<cfset LOCAL.correctSimpleVar = ""/>
+		<cfset badSimpleVar ="bar">
+		<CFSET badSimpleVar2 = "">
+		<cfSet correctSimpleVar3 ="bar">
+		
+		<cfset var correctSimpleVar4 = "" />
+		<cfset correctSimpleVar4 = "">
+		<cfset var correctSimpleVar3 = "" />
+	
+		<cfreturn 2>
+			
+	</cffunction>
+	
+	<cffunction name="simpleScriptCF9" hint="ability to set var anywhere in function in CF9 (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=07CA8A2F-C453-C7C1-D8778CDDED8E85C1' target='_new'>enhancement 29</a>)">
 		
 		<cfset correctSimpleVar ="bar">
 		<CFSET correctSimpleVar2 = "">
 		<cfSet correctSimpleVar3 ="bar">
 		
-		<!--- <cfset WithinComments = "" /> --->
-		<cfset var correctSimpleVar4 = "" />
-		<cfset correctSimpleVar4 = "">
+		<cfscript>
+			var correctSimpleVar4 = "" ;
+			correctSimpleVar4 = "";
+			var correctSimpleVar3 = "";
+		</cfscript>
 	
 		<cfreturn 3>
 			
 	</cffunction>
+	
+	<cffunction name="localTestCF9" hint="support for LOCAL scope in CF9 (<a href='http://varscoper.riaforge.org/index.cfm?event=page.issue&issueid=07CA8A2F-C453-C7C1-D8778CDDED8E85C1' target='_new'>enhancement 29</a>)">
+
+		<cfset LOCAL.correctSimpleVar = ""/>
+		
+		<cfset correctSimpleVar ="bar">
+		<CFSET correctSimpleVar2 = "">
+		<cfSet correctSimpleVar3 ="bar">
+
+		<cfset LOCAL.correctSimpleVar3 = "" />
+		<cfset correctSimpleVar3 = "">
+	
+		<cfreturn 1>
+			
+	</cffunction>
+	
+	
 	
 	<cffunction name="issue_22">
 	      
@@ -190,7 +310,7 @@
 			row = '';
 
 		</cfscript>
-		<cfreturn 1>
+		<cfreturn 0>
 	</cffunction>
 
 	<cffunction name="cfquery_order_a">
