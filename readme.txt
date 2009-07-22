@@ -25,6 +25,12 @@ Installation Instructions:
 	path to the template or directory that you would like to check. 
 
 History
+	-v1.3
+		-CF Builder Extension Support
+		-Recognizes var statements anywhere in a function (CF9)
+		-Issues (13,14,15,16,17,18,19,20,21,23,25,26,27,28,30,31,32) Fixed
+		-Open BD/Railo Supported
+		-CFScript comments parsed correctly
 	-v1.2
 		-Significant improvements to cfscript parsing engine
 		-Issues (6,7,8,9,10,11) fixed
