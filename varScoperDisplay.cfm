@@ -17,7 +17,7 @@
 			<cfset showLineNumbers = TRUE >
 		</cfif>
 		
-		<cfif isDefined("URL.parseCfscript") and URL.parseCfscript>
+		<cfif NOT isDefined("URL.parseCfscript") OR findNoCase('true',URL.parseCfscript) >
 			<cfset parseCfscript = TRUE >
 		<cfelse>
 			<cfset parseCfscript = FALSE >
