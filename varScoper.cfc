@@ -6,10 +6,6 @@
 			mike@schierberl.com
 	
 
-	Change log:
-		7/14/2006 - initial revision
-		10/7/2007 - support for cfscript
-
 	Features:
 		-cfset
 		-can return line numbers of functions/variables
