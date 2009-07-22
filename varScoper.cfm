@@ -171,8 +171,10 @@ th.codeCell{
 	<input type="checkbox" name="showDuplicates" value="true" <cfif isDefined("URL.showDuplicates") and URL.showDuplicates>checked</cfif>> show duplicates (useful if some setters are in comments) 
 	<!--- <input type="checkbox" name="hideLineNumbers" value="true" <cfif isDefined("URL.hideLineNumbers") and URL.hideLineNumbers>checked</cfif>> hide line numbers --->
 	<br>
-	<input type="checkbox" name="recursiveDirectory" value="true" <cfif isDefined("URL.recursiveDirectory") and URL.recursiveDirectory>checked</cfif>> include sub-folders<br>
-	<input type="checkbox" name="parseCfscript" value="true" <cfif isDefined("URL.parseCfscript") and URL.parseCfscript>checked</cfif>> parse cfscript. note: this will NOT return correct line numbers
+	<input type="hidden" name="recursiveDirectory" value="disabled" />
+	<input type="checkbox" name="recursiveDirectory" value="true" <cfif NOT isDefined("URL.recursiveDirectory") or findNoCase('true',URL.recursiveDirectory)>checked</cfif>> include sub-folders<br>
+	<input type="hidden" name="parseCFScript" value="disabled" /> 
+	<input type="checkbox" name="parseCfscript" value="true" <cfif NOT isDefined("URL.parseCfscript") OR findNoCase('true',URL.parseCfscript) >checked</cfif>> parse cfscript. note: this will NOT return correct line numbers
 
 </form>
 
@@ -222,7 +224,7 @@ th.codeCell{
 			<cfset startingDirectory = expandPath(url.filePath)>
 		</cfif>
 	
-		<cfif isDefined("recursiveDirectory")>
+		<cfif NOT isDefined("URL.recursiveDirectory") or findNoCase('true',URL.recursiveDirectory)>
 			<cfset recursive=true>
 		<cfelse>
 			<cfset recursive=false>
