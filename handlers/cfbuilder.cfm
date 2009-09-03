@@ -1,5 +1,8 @@
+<cfsetting showdebugoutput="false">
+
 <cfset start = getTickCount()/>
 <cfset noErrors=true />
+<cfset totalCount = 0 />
 <cfparam name="ideeventinfo"> 
 <cfif not isXML(ideeventinfo)>
 	<cfexit>
@@ -12,7 +15,7 @@
 <cfif resource.xmlAttributes.type is "file">
 	<cfset arrayAppend(files, resource.xmlAttributes.path)>
 <cfelse>
-	<cfdirectory directory="#resource.xmlAttributes.path#" type="file" recurse="true" name="fileDir" filter="*.cfc|*.cfm">
+	<cfdirectory directory="#resource.xmlAttributes.path#" recurse="true" name="fileDir" filter="*.cfc|*.cfm">
 	<cfloop query="fileDir">
 		<cfset arrayAppend(files, directory & "/" & name)>
 	</cfloop>
@@ -96,10 +99,11 @@ th.codeCell{
 </script>
 <body>
 <cfset currentFileIteration = 0>
-<cfloop index="fileIdx" array="#files#">
-	<cfset currentFileIteration++ />
+<cfloop from="1" to="#ArrayLen(files)#" index="i">
+	<cfset fileIdx = files[i] />
+	<cfset currentFileIteration = currentFileIteration + 1 />
 	<cftry>
-		<cfset fileParseText = fileRead(fileIdx)>
+		<cffile action="READ" file="#fileIdx#" variable="fileParseText">
 		<cfcatch>
 			<cfset fileParseText = "">
 		</cfcatch>
@@ -124,14 +128,14 @@ th.codeCell{
 		<cfloop from="1" to="#arrayLen(scoperResults)#" index="idx">
 			<cfset totalUnscopedVariables = totalUnscopedVariables + arrayLen(scoperResults[idx].unscopedArray) />
 		</cfloop>
-		
+		<cfset totalCount = totalCount + totalUnscopedVariables>
 		<cfif arrayLen(scoperResults)>
 			<cfset noErrors=false/>
 			
 			<table border="0" cellpadding="2" cellspacing="0" width="100%" class="scoperTable">
 			<tr>
 				<td class="fileTitle" colspan="4">
-					<cfoutput>#fileIdx#</cfoutput>
+					<cfoutput>#fileIdx# - #totalUnscopedVariables# unscoped variables<cfif totalUnscopedVariables GT 1>s</cfif></cfoutput>
 				</td>
 			</tr>
 			
@@ -227,6 +231,9 @@ th.codeCell{
 <dialog width="800" height="600" /> 
 <body> 
 <![CDATA[ 
+<p>
+<strong>Found #totalCount# unscoped variable<cfif totalCount GT 1>s</cfif> in #arrayLen(files)# file<cfif arrayLen(files) GT 1>s</cfif></strong>
+</p>
 #responseContent#
 ]]> 
 </body> 
