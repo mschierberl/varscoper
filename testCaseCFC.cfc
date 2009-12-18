@@ -6,6 +6,20 @@
 <cfcomponent hint="I am the worst written CFC ever, my vars are horribly scoped">
 	<cfset variables.fooGlobalVar = "blah">
 	
+	
+	<cffunction name="comment_vars" hint="Handles false negatives for commented code, when var statements are commented out">
+		
+		<!--- <cfset var foo = "bar" >--->
+		<cfset foo = "bar">
+		<cfreturn 1>
+	</cffunction>
+	
+	<cffunction name="falsePositive_comments" hint="MINOR: returns a false positive when commented code has an unscoped variable">
+		<cfreturn 0>
+		<!--- <cfset withinComments = ""> --->
+	</cffunction>
+	
+	
 	<cffunction name="exportResults" access="remote" output="true" returntype="any">
 		<cfargument name="lockname" default="foo" />
 
@@ -14,6 +28,13 @@
 		Test case for var scoper
 		</cfdocument>
 
+	</cffunction>
+	
+	<cffunction name="attributes" >
+		
+		<cfset attributes = "foo" />
+		<cfreturn 1>
+		
 	</cffunction>
 	
 	<cffunction name="varNoSpace" hint="var statements with CR or tabs">
@@ -467,10 +488,7 @@ another = "" />
 		
 	</cffunction>
 	
-	<cffunction name="falsePositive_comments" hint="MINOR: returns a false positive when commented code has an unscoped variable">
-		<cfreturn 0>
-		<!--- <cfset withinComments = ""> --->
-	</cffunction>
+
 
 	<cffunction name="transfer_example" >
 		
