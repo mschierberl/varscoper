@@ -40,7 +40,8 @@
 	<cfset variables.currentLineCountFuncPos	= 1 />
 	<cfset variables.currentFunctionName		= "" />
 	<cfset variables.ignoredScopes				= "super,variables,this,cgi,form,url,application,arguments,cfcatch,cgi,client,cookie,request,server,session" />
-	<cfset variables.showDuplicates				= false />
+	<cfset variables.ignoredScopes = listAppend(variables.ignoredScopes,getScopeExclusions()) />
+    <cfset variables.showDuplicates				= false />
 	<cfset variables.showLineNumbers			= true />
 	<cfset variables.parseCFscript				= false />
 	
@@ -794,5 +795,32 @@
 		hint="Returns an array of all functions that were processed">
 		<cfreturn variables.allFunctionsScanned />	
 	</cffunction>
+
+    <!------>
+
+	<cffunction name="getScopeExclusions" access="public" output="false" returntype="string">
+		<cfset var local = {} />
+		<cfset var scopeexcludelist = "" />
+
+			<!--- get properties --->
+		<cfif fileExists("#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml")>
+			<!--- read xml file --->
+			<cffile action="read" file="#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml" variable="xmlDocData">
+
+			<!--- get file to parse --->
+			<cfset xmlDoc = XmlParse(xmlDocData) />
+
+			<!--- get scope exclusion list --->
+			<cfset scopeexcludelistXML = XmlSearch(xmlDoc, "/properties/scopeexcludelist") />
+			<!--- if array size GT 0 the get the value --->
+			<cfif arrayLen(scopeexcludelistXML) GT 0>
+				<cfset scopeexcludelist = trim(scopeexcludelistXML[1].XmlText) />
+			</cfif>
+		</cfif>
+
+		<cfreturn trim(scopeexcludelist) />
+	</cffunction>
+
+    <!------>
 	
 </cfcomponent>

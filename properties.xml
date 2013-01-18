@@ -9,4 +9,10 @@
 	<fileexcludelist>
 		
 	</fileexcludelist>
+    
+    <!-- relative file paths (Example: helpers,beans) -->
+	<scopeexcludelist>
+
+	</scopeexcludelist>
+
 </properties>
