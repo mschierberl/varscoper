@@ -1,9 +1,11 @@
-<!---
+<!--- 
 	varscoper.cfm
-
-	Author: Mike Schierberl
+	
+	
+	
+	Author: Mike Schierberl 
 			mike@schierberl.com
-
+	
 
 	Change log:
 		7/14/2006 - initial revision
@@ -16,7 +18,7 @@
 <cffunction name="processDirectory" hint="used to traverse a directory structure">
 	<cfargument name="startingDirectory" type="string" required="true">
 	<cfargument name="recursive" type="boolean" required="false" default="false">
-
+	
 	<cfset var fileQuery = "" />
 	<cfset var scoperFileName = "" />
 	<cfset var xmlDoc = "" />
@@ -25,9 +27,8 @@
 	<cfset var directoryexcludelist = "" />
 	<cfset var fileexcludelistXML = arrayNew(1) />
 	<cfset var fileexcludelist = "" />
-
 	<cfset var pathsep = "/" />
-
+	
 	<!--- get properties --->
 	<cfif fileExists("#getDirectoryFromPath(getCurrentTemplatePath())#properties.xml")>
 
@@ -36,14 +37,14 @@
 
 		<!--- get file to parse --->
 		<cfset xmlDoc = XmlParse(xmlDocData) />
-
+		
 		<!--- get directory exclusion list --->
 		<cfset directoryexcludelistXML = XmlSearch(xmlDoc, "/properties/directoryexcludelist") />
 		<!--- if array size GT 0 the get the value --->
 		<cfif arrayLen(directoryexcludelistXML) GT 0>
 			<cfset directoryexcludelist = trim(directoryexcludelistXML[1].XmlText) />
 		</cfif>
-
+		
 		<!--- get file exclusion list --->
 		<cfset fileexcludelistXML = XmlSearch(xmlDoc, "/properties/fileexcludelist") />
 		<!--- if array size GT 0 the get the value --->
@@ -51,27 +52,27 @@
 			<cfset fileexcludelist = trim(fileexcludelistXML[1].XmlText) />
 		</cfif>
 	</cfif>
-
+		
 	<cfdirectory directory="#arguments.startingDirectory#" name="fileQuery"  >
 	<cfloop query="fileQuery">
-
+	
 		<!--- check to see if we want to exclude the diretory or file (from properties file) --->
 		<cfif NOT listFindNoCase(directoryExcludeList, listLast(replace(arguments.startingDirectory, "\", "/", "ALL"), pathsep))
 			AND NOT listFindNoCase(fileExcludeList, "#name#")
 			>
-
+			
 			<cfset scoperFileName = "#arguments.startingDirectory##pathsep##name#" />
-
-
-
+	
+	
+			
 			<cfif listFind("cfc,cfm",right(fileQuery.name,3)) NEQ 0 and type IS "file">
 				<cfset variables.totalFiles = variables.totalFiles + 1 />
 				<cfinclude template="varScoperDisplay.cfm">
 			<cfelseif type IS "Dir" and arguments.recursive >
 				<cfset processDirectory(startingDirectory:scoperFileName, recursive:true) />
 			</cfif>
-		</cfif>
-
+		</cfif>		
+		
 	</cfloop>
 </cffunction>
 
@@ -98,7 +99,7 @@ body, input{
 	font-family: verdana, arial, helvetica, sans-serif;
 	font-size:	 10px;
 	border-color: #0000cc;
-	border-width: 2px;
+	border-width: 2px; 
 	border-style: solid;
 }
 .fileTitle{
@@ -127,7 +128,7 @@ body, input{
 	font-size:	 	14px;
 	font-weight: 	bold;
 }
-
+ 
 .codeCell{
 	font-size: 12px;
 	padding-left:4ex;
@@ -154,24 +155,25 @@ th.codeCell{
 
 <cfsetting showdebugoutput="false">
 <cfparam name="displayFormat" default="">
-<form action="varScoper.cfm" method="get" name="scoperForm" id="scoperForm">
+<form action="varScoper.cfm" method="get" name="scoperForm" id="scoperForm" <!--- onsubmit="document.scoperForm.submitButton.disabled=true;" --->>
 	absolute path:
 	<cfoutput>
 		<input type="text" name="filePath" id="filePath" size="75" value="#htmlEditFormat(scoperFileName)#" />
 	</cfoutput>
 	<input type="submit" value="start" name="submitButton" id="submitButton" /><br>
-	output:
+	output: 
 	<input type="radio" name="displayFormat" value="screen" <cfif displayFormat is "" or displayFormat IS "screen">checked</cfif>> screen
 	<input type="radio" name="displayFormat" value="csv" <cfif  displayFormat IS "csv">checked</cfif>> csv
 	<input type="radio" name="displayFormat" value="xml" <cfif  displayFormat IS "xml">checked</cfif>> xml
 	<input type="radio" name="displayFormat" value="unit" <cfif  displayFormat IS "unit">checked</cfif>> unit test
 	<input type="radio" name="displayFormat" value="dump" <cfif  displayFormat IS "dump">checked</cfif>> dump (debug)
 	<br>
-	<input type="checkbox" name="showDuplicates" value="true" <cfif isDefined("URL.showDuplicates") and URL.showDuplicates>checked</cfif>> show duplicates (useful if some setters are in comments)
+	<input type="checkbox" name="showDuplicates" value="true" <cfif isDefined("URL.showDuplicates") and URL.showDuplicates>checked</cfif>> show duplicates (useful if some setters are in comments) 
+	<!--- <input type="checkbox" name="hideLineNumbers" value="true" <cfif isDefined("URL.hideLineNumbers") and URL.hideLineNumbers>checked</cfif>> hide line numbers --->
 	<br>
 	<input type="hidden" name="recursiveDirectory" value="disabled" />
 	<input type="checkbox" name="recursiveDirectory" value="true" <cfif NOT isDefined("URL.recursiveDirectory") or findNoCase('true',URL.recursiveDirectory)>checked</cfif>> include sub-folders<br>
-	<input type="hidden" name="parseCFScript" value="disabled" />
+	<input type="hidden" name="parseCFScript" value="disabled" /> 
 	<input type="checkbox" name="parseCfscript" value="true" <cfif NOT isDefined("URL.parseCfscript") OR findNoCase('true',URL.parseCfscript) >checked</cfif>> parse cfscript. note: this will NOT return correct line numbers
 
 </form>
@@ -197,7 +199,7 @@ th.codeCell{
 				} //else
 				return return_String;
 			}
-
+			
 			newLine = Chr(13)&Chr(10);
 		</cfscript>
 		<cfset request.allCSVData = '"Filename","Function Name","Function Line","Variable Name","Variable Line","Context"#Chr(13)##Chr(10)#'>
@@ -210,7 +212,7 @@ th.codeCell{
 		</cfif>
 		<cfset variables.totalMethods = 0 />
 		<cfset directoryStart = getTickCount() />
-		<cfoutput><script>fileLines = new Array(); </script></cfoutput>
+		<cfoutput><script>fileLines = new Array(); </script></cfoutput>	
 		<cfinclude template="varScoperDisplay.cfm">
 		<cfset directoryEnd = getTickCount() />
 		<cfoutput><br><br><span class="summary">Processed 1 file and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
@@ -221,7 +223,7 @@ th.codeCell{
 		<cfelse>
 			<cfset startingDirectory = expandPath(url.filePath)>
 		</cfif>
-
+	
 		<cfif NOT isDefined("URL.recursiveDirectory") or findNoCase('true',URL.recursiveDirectory)>
 			<cfset recursive=true>
 		<cfelse>
@@ -230,14 +232,14 @@ th.codeCell{
 		<cfset variables.totalFiles = 0 />
 		<cfset variables.totalMethods = 0 />
 		<cfset directoryStart = getTickCount() />
-		<cfoutput><script>fileLines = new Array(); </script></cfoutput>
+		<cfoutput><script>fileLines = new Array(); </script></cfoutput>	
 		<cfset processDirectory(startingDirectory:startingDirectory,recursive:recursive)>
 		<cfset directoryEnd = getTickCount() />
 		<cfoutput><br><br><span class="summary">Processed #variables.totalFiles# files and #variables.totalMethods# cffunctions in #directoryEnd-directoryStart#ms</span></cfoutput>
 	<cfelse>
 		<cfoutput>No file or directory exists for the path specified (#htmlEditFormat(url.filePath)#)</cfoutput>
 	</cfif>
-
+	
 	<cfif isDefined("URL.displayFormat") AND URL.displayFormat IS "CSV">
 		<cfsetting enablecfoutputonly="true" showdebugoutput="false">
 		<cfset fileName="unscoped_variables.csv" />
@@ -245,11 +247,16 @@ th.codeCell{
 		<cfheader name="Expires" value="#Now()#">
 		<cfcontent type="application/octet-stream" reset="true"> <!--- vnd.ms-excel --->
 		<cfcontent reset="true"><cfoutput>#request.allCSVData#</cfoutput><cfabort>
-
-
+	
+		
 	</cfif>
-
+	
+	
+	
+	
 </cfif>
+
+
 
 </body>
 </html>
