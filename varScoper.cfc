@@ -154,7 +154,10 @@
 			<cfif Find("<! ---", fileParseText)>
 				<cfset variables.fileParseText = fileParseText.replaceAll("[^\r\n\t\-](?=[^\!]*\-\-\-)","") >
 			</cfif> --->
-			
+
+			<!--- KK: added to deal with CFML comments --->
+			<cfset variables.fileParseText.replaceAll("(?s)<!---(.*)--->", "")>
+
 			<cfset functionREfind = ReFindNoCase(RegExCffunction,fileParseText,currentPositionInFile,true)>
 		
 			<!--- Keep looping over the file until we have found all functions --->
@@ -201,10 +204,10 @@
 					<!--- Create another struct to identify variables that don't exist in the current functions var-ed variables --->
 					<cfset variables.varscoperStruct["#functionName#"].unVaredStruct = structNew() />
 					<cfset tempUnVaredStruct = variables.varscoperStruct["#functionName#"].unVaredStruct />
-					
+
 					<!--- findVars processes a string and returns a struct containing all variables set by vars as well as the line number of the end block for vars --->
 					<cfset findVarsResult = findVars(functionInnerText) />
-					
+
 					<cfset structAppend(variables.varscoperStruct["#functionName#"].VaredStruct,findVarsResult.variableNames) />
 					
 					<!--- Set the position that we ended looking for vars --->
@@ -269,6 +272,7 @@
 		
 		<!--- Loop over RegEx to find all variables that have been correctly var-ed within this cffunction --->
 		<cfset varREFind = ReFindNoCase(RegExCFsetVar,arguments.stringToProcess,currentPositionVarFind,true)>
+
 		<cfloop condition="varREFind.POS[1] NEQ 0">
 			<!--- set varVariableName to the cfset tag --->
 			<cfset varVariableName = mid(arguments.stringToProcess,varREFind.POS[1],varREFind.LEN[1])>
@@ -287,40 +291,59 @@
 
 			<cfset varREFind = ReFindNoCase(RegExCFsetVar,arguments.stringToProcess,currentPositionVarFind,true)>
 		</cfloop>
-		
-					
+
 		<!--- Now start looping over all cfscript statements to identify variables that are being set --->
 		
 		<cfset currentPositionVariableFind = 1 />
 		<cfif variables.parseCFscript>
 			<cfset variableCFScriptStart = FindNoCase("<CFS"&"CRIPT>",arguments.stringToProcess,currentPositionVariableFind)/>
-				
+
 				<cfloop condition="variableCFScriptStart NEQ 0">
 					<!--- Identify the cfscript statement --->
 					<cfset variableCFScriptEND = FindNoCase("</CFS"&"CRIPT>",arguments.stringToProcess, variableCFScriptStart+1)/>
-					
-					
+
 					<cfif variableCFScriptEND neq 0>
 						<cfset variableCFScriptText=""/>
 						
-						<cfset variableCFScriptTextTmp =mid(arguments.stringToProcess, variableCFScriptSTART + len('<cfs'&'cript>'), 
+						<cfset variableCFScriptTextTmp = mid(arguments.stringToProcess, variableCFScriptSTART + len('<cfs'&'cript>'),
 									variableCFScriptEND-variableCFScriptSTART- len('<cfsc'&'ript>') )/>
 									
 						<!--- change to use unix style lines endings --->			
-						<cfset variableCFScriptTextTmp =Replace(variableCFScriptTextTmp,"#chr(13)##chr(10)#",chr(13),"ALL")/>
-				
+						<cfset variableCFScriptTextTmp = Replace(variableCFScriptTextTmp,"#chr(13)##chr(10)#",chr(13),"ALL")/>
+
 						<!--- clean script --->
 						<cfset variableCFScriptTextTmp = cleanScript(variableCFScriptTextTmp) />
-										
+
 						<cfloop index="variableCFScriptCmd" list="#variableCFScriptTextTmp#" delimiters=";">
-							<cfset variableCFScriptCmd=ListFirst(ListChangeDelims(variableCFScriptCmd," ",variableCFScriptDelim),"=")/>
-							<cfset variableCFScriptCmd=trim(variableCFScriptCmd)>
-							<cfif ListFirst(trim(variableCFScriptCmd), " ") eq "var">
-								<cfset VariableNameCfset=mid(variableCFScriptCmd,3,len(variableCFScriptCmd))/>
-								<cfset VariableNameCfset=trim(ListGetAt(variableCFScriptCmd,2, " "))/>
-								<!--- Update the var-ed struct to note that we are using this var --->
-								<cfset tempVaredStruct["#VariableNameCfset#"] = "not used">
+
+							<cfset variableCFScriptCmd = ListChangeDelims(variableCFScriptCmd," ",variableCFScriptDelim)>
+
+							<!--- KK: Improved handling of cfscript code --->
+							<cfif ListLen(variableCFScriptCmd,"=") lte 2>
+								<cfset variableCFScriptCmd=ListFirst(variableCFScriptCmd,"=")/>
+								<cfset variableCFScriptCmd=trim(variableCFScriptCmd)>
+
+								<cfset varPosition = ListFind(trim(variableCFScriptCmd), "var", " ")>
+
+								<cfif varPosition>
+									<cfset VariableNameCfset=trim(ListGetAt(variableCFScriptCmd,varPosition+1, " "))/>
+									<!--- Update the var-ed struct to note that we are using this var --->
+									<cfset tempVaredStruct["#VariableNameCfset#"] = "not used">
+								</cfif>
+							<cfelse>
+								<cfloop list="#variableCFScriptCmd#" index="loopItem">
+									<cfset loopItem=trim(loopItem)>
+
+									<cfset varPosition = ListFind(trim(loopItem), "var", " ")>
+
+									<cfif varPosition>
+										<cfset loopItem = trim(ListGetAt(loopItem,varPosition+1, " "))/>
+										<!--- Update the var-ed struct to note that we are using this var --->
+										<cfset tempVaredStruct["#loopItem#"] = "not used">
+									</cfif>
+								</cfloop>
 							</cfif>
+
 						</cfloop>
 						<!--- Update the current parsing position to start from the end of the cfset statement --->
 						<cfset currentPositionVariableFind = variableCFScriptEND>
@@ -365,7 +388,7 @@
 			<cfargument name="stringToParse" type="string" hint="I am the block of text that will be parsed to find unscoped vars">
 			<cfargument name="positionToStart" type="numeric" hint="I am the starting position, this is generally right after the var-ed variables">
 			<cfargument name="currentFunctionName" type="string" hint="I am the name of the current function that is being parsed" >
-			
+
 			<cfset var REcfset = '<cfset+[\s]+[a-zA-Z0-9_\[\"\''\]\##\.\s\(\)]+\=(.*?)\>' />
 			
 			<cfset var variableREFind = "" />
@@ -413,7 +436,6 @@
 				<cfset currentPositionVariableFind = variableREFind.POS[1] + variableREFind.LEN[1]>
 				<cfset variableREFind = ReFindNoCase(REcfset,functionInnerText,currentPositionVariableFind,true)>
 			</cfloop>
-		
 	</cffunction>
 	
 	
@@ -439,12 +461,12 @@
 			<cfset cfscriptArray = ReParserLoop(textToParse:functionInnerText,RegularExpression:REcfscript) />
 
 			<cfloop from="1" to="#arrayLen(cfscriptArray)#" index="cfscriptIdx">
-				
+
 				<!--- clean script --->
 				<cfset cfscriptArray[cfscriptIdx].TEXT = cleanScript(cfscriptArray[cfscriptIdx].TEXT) />
-				
-				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx].TEXT,RegularExpression:'[a-zA-Z0-9_\[\"\''\]\-\(\)\##\.\+\s]*?\=[\w\D]*?;(\s.*?)')>				
-				
+
+				<cfset setStatementArray = ReParserLoop(textToParse:cfscriptArray[cfscriptIdx].TEXT,RegularExpression:'[a-zA-Z0-9_\[\"\''\]\-\(\)\##\.\+\s]*?\=[\w\D]*?;(\s.*?)')>
+
 				<!--- Loop over all potential set statements --->
 				<cfloop from="1" to="#arrayLen(setStatementArray)#" index="setStatementIdx">
 					<!--- Script block could contain var and non-var statements, ignore the vars --->
@@ -452,12 +474,21 @@
 	
 						<!--- Strip out else statements if they are first.  Else is reserved word in cfscript and you could have a situation where you have if(variable) foo=1;else bar=1; --->
 						<cfset variableNameSetIsolate = setStatementArray[setStatementIdx].TEXT.replaceAll("else+[\s]","")>
-						
+
 						<!--- make sure we have a variable to parse --->
 						<cfif find("=",variableNameSetIsolate)-1 GT 0>
-						
+
 							<!--- Check to see if this is properly scoped already, make sure to check dot and array notation --->
-							<cfset variableNameSetIsolate = left(variableNameSetIsolate,find("=",variableNameSetIsolate)-1) />
+
+							<!--- KK: Added Support for operater shortcuts in cfscript --->
+							<cfif Find("+=",variableNameSetIsolate)>
+								<cfset variableNameSetIsolate = left(variableNameSetIsolate,find("+=",variableNameSetIsolate)-1) />
+							<cfelseif Find("-=",variableNameSetIsolate)>
+							    <cfset variableNameSetIsolate = left(variableNameSetIsolate,find("-=",variableNameSetIsolate)-1) />
+							<cfelseif Find("=",variableNameSetIsolate)>
+								<cfset variableNameSetIsolate = left(variableNameSetIsolate,find("=",variableNameSetIsolate)-1) />
+							</cfif>
+
 							<cfset VariableNamesetIsolate = trim(ListFirst(ListFirst(VariableNamesetIsolate,'.'),'[')) />
 							
 							<!--- string leading and trailing quotes and pounds --->
@@ -478,7 +509,6 @@
 						</cfif>
 					</cfif>
 				</cfloop>
-				
 			</cfloop>
 
 	</cffunction>
@@ -742,12 +772,12 @@
 		<cfset var text = arguments.textToClean />
 		
 		<!--- <cfset text = text.ReplaceAll("(<\s?cfscript\b[^>]*>|</\s?cfscript\s?>)","")> --->
-		
+
 		<!--- strip comments --->
-		<cfset text = text.ReplaceAll("//(.*?)(?<!\)\;)#chr(13)#?#chr(10)#","") />
-		
+		<cfset text = text.ReplaceAll("//(.*?)(?<!\)\;)(#chr(13)#|#chr(10)#|#chr(13)##chr(10)#)","") />
+
 		<!--- This is a rockstar regex --->
-		<cfset text = rereplaceNoCase(text,'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)','','all')/> 		
+		<cfset text = rereplaceNoCase(text,'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)','','all')/>
 		<!--- strip out /* type comments */ --->
 		<!---<cfset text = text.ReplaceAll("(?<!/)[^\r\n\s](?=[^/*]*\*/\s)","") />
 		<!--- regex above strips between comments, but doesn't erase them --->
@@ -760,22 +790,26 @@
 				 --->		
 		<cfset text = REReplaceNoCase(text,"if[ ]*\(+(.*?)\)+[\s\{]*?[#chr(13)#?#chr(10)#]","","all")>
 
+		<!--- KK: dealing with else statements in cfscript --->
+		<cfset text = REReplaceNoCase(text,"else[ ]*\(*(.*?)\)*[\s\{]*?[#chr(13)#?#chr(10)#]","","all")>
+
 		<!--- Strip out for loops at start of statement, this is needed after Harry's fixes: ms --->
 		<cfset text = text.ReplaceAll("for\s?\(","")>
-		
+
 		<!--- strip out variable sets within function calls ($custom:hkl)
 			quick and dirty, used for cases like
 				method(a=x, b=y);
 		 --->
 		<cfset text = text.ReplaceAll("\((.*?)\)","")>
-                             
+
 		<!--- strip out bracket statements ($custom:hkl)
 			quick and dirty, used for cases like
 				stTest["mykey"] = value;
 		 --->
 		<!--- remove all returns --->
-		<cfset text = REReplaceNoCase(text,"[\;\>]+\s*return\s(.*?)+;","","all")>
-		
+		<!--- KK: changed regexp to deal with more general cases of return statements in cfscript --->
+		<cfset text = REReplaceNoCase(text,"\s+return\s(.*?)+;","","all")>
+
 		<cfreturn text />
 	</cffunction>
 	
@@ -794,5 +828,5 @@
 		hint="Returns an array of all functions that were processed">
 		<cfreturn variables.allFunctionsScanned />	
 	</cffunction>
-	
+
 </cfcomponent>
